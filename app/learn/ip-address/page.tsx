@@ -1,0 +1,140 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Progress } from "@/components/ui/progress"
+import { NetworkDiagram } from "@/components/NetworkDiagram"
+import { Layout } from "@/components/Layout"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+
+const devices = [
+  { type: "router" as const, x: 300, y: 50, label: "ルーター", ip: "192.168.1.1" },
+  { type: "pc" as const, x: 150, y: 150, label: "パソコン1", ip: "192.168.1.10" },
+  { type: "pc" as const, x: 450, y: 150, label: "パソコン2", ip: "???" },
+]
+
+const connections = [
+  { from: 0, to: 1, label: "LAN1" },
+  { from: 0, to: 2, label: "LAN2" },
+]
+
+export default function IPAddressLearnPage() {
+  const [ipAddress, setIpAddress] = useState("")
+  const [subnetMask, setSubnetMask] = useState("")
+  const [feedback, setFeedback] = useState("")
+  const [feedback2, setFeedback2] = useState("")
+  const [progress, setProgress] = useState(0)
+  const [showHint, setShowHint] = useState(false)
+
+  const checkIPAddress = () => {
+    if (ipAddress.trim() === "192.168.1.11") {
+      setFeedback("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => Math.min(prev + 50, 100))
+    } else if (ipAddress.startsWith("192.168.1.")) {
+      setFeedback("惜しい！同じネットワーク内の別のアドレスを考えてみよう。 🤔")
+      setProgress((prev) => Math.min(prev + 25, 100))
+    } else {
+      setFeedback("もう一度考えてみよう。ルーターとパソコン1のIPアドレスをヒントにしてね。 💪")
+    }
+  }
+
+  const checkSubnetMask = () => {
+    if (subnetMask === "255.255.255.0") {
+      setFeedback2("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => Math.min(prev + 50, 100))
+    } else {
+      setFeedback2("もう一度考えてみよう。一般的な家庭用ネットワークのサブネットマスクを思い出してね。 💪")
+    }
+  }
+
+  const toggleHint = () => {
+    setShowHint(!showHint)
+  }
+
+  return (
+    <Layout title="IPアドレスの不思議 🏠" backLink="/learn" backText="学習メニューに戻る">
+      <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
+        <NetworkDiagram devices={devices} connections={connections} />
+
+        <div className="mt-6 space-y-4">
+          <p className="text-lg">
+            上の図は、小さなホームネットワークを表しています。ルーターと2台のパソコンがつながっていますね。
+          </p>
+          <p className="text-lg">
+            IPアドレスは、インターネットの世界での住所のようなものです。
+            同じネットワーク内では、最後の数字だけが違う形になっています。
+          </p>
+          <p className="text-lg font-semibold">パソコン2のIPアドレスはどうなるでしょうか？</p>
+        </div>
+
+        <div className="mt-6 flex flex-col md:flex-row gap-2">
+          <Input
+            type="text"
+            placeholder="パソコン2のIPアドレスを入力"
+            value={ipAddress}
+            onChange={(e) => setIpAddress(e.target.value)}
+            className="flex-1 bg-white text-black placeholder-gray-500"
+          />
+          <Button onClick={checkIPAddress} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
+        </div>
+
+        {feedback && (
+          <p className={`mt-4 text-lg ${feedback.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback}
+          </p>
+        )}
+
+        <div className="mt-6 space-y-4">
+          <p className="text-lg font-semibold">このネットワークのサブネットマスクは何でしょうか？</p>
+          <RadioGroup value={subnetMask} onValueChange={setSubnetMask}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="255.255.255.0" id="r1" />
+              <Label htmlFor="r1">255.255.255.0</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="255.255.0.0" id="r2" />
+              <Label htmlFor="r2">255.255.0.0</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="255.0.0.0" id="r3" />
+              <Label htmlFor="r3">255.0.0.0</Label>
+            </div>
+          </RadioGroup>
+          <Button onClick={checkSubnetMask} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
+        </div>
+
+        {feedback2 && (
+          <p className={`mt-4 text-lg ${feedback2.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback2}
+          </p>
+        )}
+
+        <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
+        <p className="text-base md:text-lg text-gray-200 mb-4">理解度: {progress}% 🚀</p>
+
+        <Button onClick={toggleHint} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
+          {showHint ? "ヒントを隠す 🙈" : "ヒントを見る 💡"}
+        </Button>
+
+        {showHint && (
+          <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
+            <p className="text-base md:text-lg text-white">
+              <strong>ヒント:</strong> ルーターのIPアドレスは192.168.1.1で、パソコン1は192.168.1.10です。
+              パソコン2も同じネットワーク内にあるので、最初の3つの数字（192.168.1）は同じになります。
+              最後の数字は、他のデバイスと被らない数字を選びましょう。
+              サブネットマスクは、ネットワーク部とホスト部を区別するために使用されます。
+              一般的な家庭用ネットワークでは、24ビットのネットワーク部を持つことが多いです。
+            </p>
+          </div>
+        )}
+      </div>
+    </Layout>
+  )
+}
+
