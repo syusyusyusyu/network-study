@@ -4,9 +4,9 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
+import { Layout } from "@/components/Layout"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import Link from "next/link"
 
 export default function VLANChallengePage() {
   const [vlanId, setVlanId] = useState("")
@@ -60,9 +60,8 @@ export default function VLANChallengePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600 flex flex-col items-center justify-center text-white p-4">
-      <h1 className="text-4xl font-bold mb-8">VLANチャレンジ</h1>
-      <div className="bg-white text-black p-6 rounded-lg shadow-lg max-w-2xl w-full">
+    <Layout title="VLANチャレンジ" backLink="/challenge" backText="チャレンジ一覧に戻る">
+      <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
         <p className="mb-4">
           ネットワーク管理者として、新しいVLANを設定し、特定のポートを割り当てる必要があります。 VLAN
           ID（1-4094）とポート番号（1-48、カンマ区切り）を入力してください。
@@ -75,19 +74,19 @@ export default function VLANChallengePage() {
             onChange={(e) => setVlanId(e.target.value)}
             min="1"
             max="4094"
-            className="text-black placeholder-gray-500"
+            className="bg-white text-black placeholder-gray-500"
           />
           <Input
             type="text"
             placeholder="ポート番号（例: 1,2,3）"
             value={portNumbers}
             onChange={(e) => setPortNumbers(e.target.value)}
-            className="text-black placeholder-gray-500"
+            className="bg-white text-black placeholder-gray-500"
           />
           <Button onClick={checkVLAN}>チェック</Button>
         </div>
         {feedback && (
-          <p className={`mb-4 ${feedback.includes("正しい") ? "text-green-600" : "text-red-600"}`}>{feedback}</p>
+          <p className={`mb-4 ${feedback.includes("正しい") ? "text-green-300" : "text-yellow-300"}`}>{feedback}</p>
         )}
 
         <div className="mt-6 space-y-4">
@@ -112,21 +111,21 @@ export default function VLANChallengePage() {
         </div>
 
         {feedback2 && (
-          <p className={`mt-4 text-lg ${feedback2.includes("正解") ? "text-green-600" : "text-red-600"}`}>
+          <p className={`mt-4 text-lg ${feedback2.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
             {feedback2}
           </p>
         )}
 
-        <Progress value={progress} className="mt-4 mb-2" />
-        <p className="text-sm text-gray-600">進捗: {progress}% 完了</p>
+        <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
+        <p className="text-base md:text-lg text-gray-200 mb-4">進捗: {progress}% 🚀</p>
 
         <Button onClick={toggleHint} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
           {showHint ? "ヒントを隠す 🙈" : "ヒントを見る 💡"}
         </Button>
 
         {showHint && (
-          <div className="mt-4 bg-blue-100 p-4 rounded-lg">
-            <p className="text-base text-blue-800">
+          <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
+            <p className="text-base md:text-lg text-white">
               <strong>ヒント:</strong> VLANの設定では、適切なVLAN IDとそれに属するポートを指定する必要があります。
               トランクポートは通常、スイッチの高速ポートを使用し、複数のVLANのトラフィックを伝送します。
               多くのスイッチでは、ポート49以降が高速ポートとして使用されることがあります。
@@ -134,10 +133,7 @@ export default function VLANChallengePage() {
           </div>
         )}
       </div>
-      <Button asChild className="mt-8">
-        <Link href="/challenge">チャレンジモードに戻る</Link>
-      </Button>
-    </div>
+    </Layout>
   )
 }
 

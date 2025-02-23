@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Layout } from "@/components/Layout"
 
 export default function WirelessChallengePage() {
   const [ssid, setSSID] = useState("")
@@ -60,9 +60,8 @@ export default function WirelessChallengePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-500 to-purple-600 flex flex-col items-center justify-center text-white p-4">
-      <h1 className="text-4xl font-bold mb-8">無線LANチャレンジ</h1>
-      <div className="bg-white text-black p-6 rounded-lg shadow-lg max-w-2xl w-full">
+    <Layout title="無線LANチャレンジ 📡" backLink="/challenge" backText="チャレンジ一覧に戻る">
+      <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
         <p className="mb-4">
           ネットワーク管理者として、新しい無線LANを設定する必要があります。
           SSID、パスワード、チャンネル、およびセキュリティタイプを設定してください。
@@ -73,14 +72,14 @@ export default function WirelessChallengePage() {
             placeholder="SSID"
             value={ssid}
             onChange={(e) => setSSID(e.target.value)}
-            className="text-black placeholder-gray-500"
+            className="bg-white text-black placeholder-gray-500"
           />
           <Input
             type="password"
             placeholder="パスワード（8文字以上）"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="text-black placeholder-gray-500"
+            className="bg-white text-black placeholder-gray-500"
           />
           <Input
             type="number"
@@ -89,10 +88,10 @@ export default function WirelessChallengePage() {
             onChange={(e) => setChannel(e.target.value)}
             min="1"
             max="14"
-            className="text-black placeholder-gray-500"
+            className="bg-white text-black placeholder-gray-500"
           />
           <Select onValueChange={setSecurity}>
-            <SelectTrigger className="text-black">
+            <SelectTrigger className="bg-white text-black">
               <SelectValue placeholder="セキュリティタイプ" />
             </SelectTrigger>
             <SelectContent>
@@ -105,7 +104,7 @@ export default function WirelessChallengePage() {
           <Button onClick={checkWireless}>チェック</Button>
         </div>
         {feedback && (
-          <p className={`mb-4 ${feedback.includes("正しい") ? "text-green-600" : "text-red-600"}`}>{feedback}</p>
+          <p className={`mb-4 ${feedback.includes("正しい") ? "text-green-300" : "text-yellow-300"}`}>{feedback}</p>
         )}
 
         <div className="mt-6 space-y-4">
@@ -126,21 +125,21 @@ export default function WirelessChallengePage() {
         </div>
 
         {feedback2 && (
-          <p className={`mt-4 text-lg ${feedback2.includes("正解") ? "text-green-600" : "text-red-600"}`}>
+          <p className={`mt-4 text-lg ${feedback2.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
             {feedback2}
           </p>
         )}
 
-        <Progress value={progress} className="mt-4 mb-2" />
-        <p className="text-sm text-gray-600">進捗: {progress}% 完了</p>
+        <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
+        <p className="text-base md:text-lg text-gray-200 mb-4">進捗: {progress}% 🚀</p>
 
         <Button onClick={toggleHint} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
           {showHint ? "ヒントを隠す 🙈" : "ヒントを見る 💡"}
         </Button>
 
         {showHint && (
-          <div className="mt-4 bg-blue-100 p-4 rounded-lg">
-            <p className="text-base text-blue-800">
+          <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
+            <p className="text-base md:text-lg text-white">
               <strong>ヒント:</strong> 無線LANの設定では、一意のSSIDと強力なパスワードが重要です。
               チャンネルは混信を避けるために適切に選択する必要があります。
               セキュリティタイプは、最新のものほど安全性が高くなります。
@@ -150,10 +149,7 @@ export default function WirelessChallengePage() {
           </div>
         )}
       </div>
-      <Button asChild className="mt-8">
-        <Link href="/challenge">チャレンジモードに戻る</Link>
-      </Button>
-    </div>
+    </Layout>
   )
 }
 
