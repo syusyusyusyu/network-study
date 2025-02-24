@@ -39,11 +39,21 @@ export default function NetworkBasicsPage() {
   const [progress, setProgress] = useState(0)
 
   const checkIpAnswer1 = () => {
-    if (ipAnswer1.trim().toLowerCase() === "192.168.1.2") {
+    const inputIP = ipAnswer1.trim()
+    const ipParts = inputIP.split(".")
+
+    if (
+      ipParts.length === 4 &&
+      ipParts[0] === "192" &&
+      ipParts[1] === "168" &&
+      ipParts[2] === "1" &&
+      Number.parseInt(ipParts[3]) >= 2 &&
+      Number.parseInt(ipParts[3]) <= 254
+    ) {
       setIpFeedback1("正解です！ 👍")
       setProgress((prev) => Math.min(prev + 8.33, 100))
     } else {
-      setIpFeedback1("不正解です。もう一度考えてみましょう。")
+      setIpFeedback1("不正解です。192.168.1.2 から 192.168.1.254 の範囲で考えてみましょう。")
     }
   }
 
@@ -147,7 +157,7 @@ export default function NetworkBasicsPage() {
   }
 
   return (
-    <Layout title="ネットワーク基礎知識 📚" backLink="/.." backText="トップメニューに戻る">
+    <Layout title="ネットワーク基礎知識 📚" backLink="/" backText="トップメニューに戻る">
       <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
         {/* IPアドレスセクション */}
         <section className="mb-8">
@@ -445,6 +455,12 @@ export default function NetworkBasicsPage() {
 
         <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
         <p className="text-base md:text-lg text-gray-200 mb-4">進捗: {progress.toFixed(2)}% 🚀</p>
+
+        <div className="text-center">
+          <Button asChild className="bg-green-500 hover:bg-green-600 text-white">
+            <Link href="/">トップメニューに戻る</Link>
+          </Button>
+        </div>
       </div>
     </Layout>
   )
