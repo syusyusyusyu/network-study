@@ -24,8 +24,8 @@ const connections = [
 
 export default function RoutingChallengePage() {
   const [answer, setAnswer] = useState("")
-  const [routingProtocol, setRoutingProtocol] = useState("")
-  const [ospfArea, setOspfArea] = useState("")
+  const [defaultRoute, setDefaultRoute] = useState("")
+  const [routingTable, setRoutingTable] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
   const [feedback3, setFeedback3] = useState("")
@@ -52,23 +52,21 @@ export default function RoutingChallengePage() {
     }
   }
 
-  const checkRoutingProtocol = () => {
-    if (routingProtocol === "ospf") {
+  const checkDefaultRoute = () => {
+    if (defaultRoute === "b") {
       setFeedback2("正解です！素晴らしい！ 🎉")
       setProgress((prev) => prev + 33)
     } else {
-      setFeedback2(
-        "もう一度考えてみよう。大規模ネットワークで一般的に使用される動的ルーティングプロトコルはどれでしょうか？ 💪",
-      )
+      setFeedback2("もう一度考えてみよう。デフォルトルートの形式を思い出してください。 💪")
     }
   }
 
-  const checkOSPFArea = () => {
-    if (ospfArea === "b") {
+  const checkRoutingTable = () => {
+    if (routingTable === "c") {
       setFeedback3("正解です！素晴らしい！ 🎉")
       setProgress((prev) => prev + 34)
     } else {
-      setFeedback3("もう一度考えてみよう。OSPFのエリア0の役割を思い出してください。 💪")
+      setFeedback3("もう一度考えてみよう。スタティックルートがどのように表示されるか考えてみてください。 💪")
     }
   }
 
@@ -77,12 +75,12 @@ export default function RoutingChallengePage() {
   }
 
   return (
-    <Layout title="ルーティング設定チャレンジ" backLink="/challenge" backText="チャレンジ一覧に戻る">
+    <Layout title="スタティックルーティングチャレンジ" backLink="/challenge" backText="チャレンジ一覧に戻る">
       <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
         <NetworkDiagram devices={devices} connections={connections} />
 
         <p className="mt-4 mb-2 text-lg font-semibold">
-          2つのネットワークを接続するルーティング設定を行います。R1のコンフィギュレーションモードで以下の設定を行ってください：
+          2つのネットワークを接続するスタティックルーティング設定を行います。R1のコンフィギュレーションモードで以下の設定を行ってください：
         </p>
         <ul className="list-disc list-inside mb-4 text-sm">
           <li>R2のネットワーク(192.168.2.0/24)へのスタティックルートを設定</li>
@@ -109,24 +107,22 @@ export default function RoutingChallengePage() {
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">
-            大規模ネットワークで一般的に使用される動的ルーティングプロトコルはどれですか？
-          </p>
-          <RadioGroup value={routingProtocol} onValueChange={setRoutingProtocol}>
+          <p className="text-lg font-semibold">R1にデフォルトルートを設定する場合、正しいコマンドはどれですか？</p>
+          <RadioGroup value={defaultRoute} onValueChange={setDefaultRoute}>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="rip" id="r1" />
-              <Label htmlFor="r1">RIP</Label>
+              <RadioGroupItem value="a" id="r1" />
+              <Label htmlFor="r1">ip route 0.0.0.0 0.0.0.0 Serial0/0/0</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="ospf" id="r2" />
-              <Label htmlFor="r2">OSPF</Label>
+              <RadioGroupItem value="b" id="r2" />
+              <Label htmlFor="r2">ip route 0.0.0.0 0.0.0.0 10.0.0.2</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="bgp" id="r3" />
-              <Label htmlFor="r3">BGP</Label>
+              <RadioGroupItem value="c" id="r3" />
+              <Label htmlFor="c">ip default-network 10.0.0.0</Label>
             </div>
           </RadioGroup>
-          <Button onClick={checkRoutingProtocol} className="bg-green-500 hover:bg-green-600 text-white">
+          <Button onClick={checkDefaultRoute} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -138,22 +134,24 @@ export default function RoutingChallengePage() {
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">OSPFのエリア0（バックボーンエリア）の役割は何ですか？</p>
-          <RadioGroup value={ospfArea} onValueChange={setOspfArea}>
+          <p className="text-lg font-semibold">
+            R1のルーティングテーブルで、192.168.2.0/24へのスタティックルートはどのように表示されますか？
+          </p>
+          <RadioGroup value={routingTable} onValueChange={setRoutingTable}>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="a" id="o1" />
-              <Label htmlFor="o1">他のエリアからの経路情報を受け取らない</Label>
+              <RadioGroupItem value="a" id="rt1" />
+              <Label htmlFor="rt1">D 192.168.2.0/24 [90/2170112] via 10.0.0.2, 00:00:05, Serial0/0/0</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="b" id="o2" />
-              <Label htmlFor="o2">すべてのエリアを相互接続する</Label>
+              <RadioGroupItem value="b" id="rt2" />
+              <Label htmlFor="rt2">C 192.168.2.0/24 is directly connected, Serial0/0/0</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="c" id="o3" />
-              <Label htmlFor="o3">外部ネットワークとの接続のみを行う</Label>
+              <RadioGroupItem value="c" id="rt3" />
+              <Label htmlFor="rt3">S 192.168.2.0/24 [1/0] via 10.0.0.2</Label>
             </div>
           </RadioGroup>
-          <Button onClick={checkOSPFArea} className="bg-green-500 hover:bg-green-600 text-white">
+          <Button onClick={checkRoutingTable} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -176,8 +174,8 @@ export default function RoutingChallengePage() {
             <p className="text-base md:text-lg text-white">
               <strong>ヒント:</strong> スタティックルートの設定には「ip route」コマンドを使用します。
               インターフェースの設定には「interface」コマンドを使用し、その後にIPアドレスの設定と有効化を行います。
-              動的ルーティングプロトコルについては、スケーラビリティと収束速度を考慮してください。
-              OSPFのエリア0は、OSPFネットワークの中心的な役割を果たします。
+              デフォルトルートは0.0.0.0/0のネットワークへのルートです。
+              ルーティングテーブルでは、スタティックルートは通常'S'で表示され、その後にネットワーク、メトリック、ネクストホップが続きます。
             </p>
           </div>
         )}

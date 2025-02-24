@@ -24,8 +24,8 @@ const connections = [
 
 export default function RoutingLearnPage() {
   const [nextHop, setNextHop] = useState("")
-  const [defaultGateway, setDefaultGateway] = useState("")
-  const [routingProtocol, setRoutingProtocol] = useState("")
+  const [routeCommand, setRouteCommand] = useState("")
+  const [defaultRoute, setDefaultRoute] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
   const [feedback3, setFeedback3] = useState("")
@@ -44,23 +44,21 @@ export default function RoutingLearnPage() {
     }
   }
 
-  const checkDefaultGateway = () => {
-    if (defaultGateway === "192.168.1.1") {
+  const checkRouteCommand = () => {
+    if (routeCommand.toLowerCase().includes("ip route 10.0.0.0 255.255.255.0 10.0.0.1")) {
       setFeedback2("正解です！素晴らしい！ 🎉")
       setProgress((prev) => Math.min(prev + 33, 100))
     } else {
-      setFeedback2("もう一度考えてみよう。PC1が接続しているルーターのIPアドレスを確認してね。 💪")
+      setFeedback2("もう一度考えてみよう。'ip route'コマンドの形式を確認してね。 💪")
     }
   }
 
-  const checkRoutingProtocol = () => {
-    if (routingProtocol === "ospf") {
+  const checkDefaultRoute = () => {
+    if (defaultRoute === "b") {
       setFeedback3("正解です！素晴らしい！ 🎉")
       setProgress((prev) => Math.min(prev + 34, 100))
     } else {
-      setFeedback3(
-        "もう一度考えてみよう。大規模ネットワークで一般的に使用される動的ルーティングプロトコルはどれでしょうか？ 💪",
-      )
+      setFeedback3("もう一度考えてみよう。デフォルトルートの役割を思い出してください。 💪")
     }
   }
 
@@ -69,18 +67,18 @@ export default function RoutingLearnPage() {
   }
 
   return (
-    <Layout title="道案内マスター 🗺️" backLink="/learn" backText="学習メニューに戻る">
+    <Layout title="スタティックルーティング 🗺️" backLink="/learn" backText="学習メニューに戻る">
       <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
         <NetworkDiagram devices={devices} connections={connections} />
 
         <div className="mt-6 space-y-4">
           <p className="text-lg">上の図は、2つのネットワークがルーターで接続されている様子を表しています。</p>
           <p className="text-lg">
-            ルーティングとは、データパケットが目的地に到達するための最適な経路を決定することです。
-            ルーターAは、異なるネットワーク宛てのパケットをどこに送ればいいか知っている必要があります。
+            スタティックルーティングでは、管理者が手動でルーティングテーブルを設定します。
+            ルーターAは、10.0.0.0/24ネットワーク宛てのパケットをどこに送ればいいか知っている必要があります。
           </p>
           <p className="text-lg font-semibold">
-            PC1からPC2にデータを送る場合、ルーターAの次のホップ（転送先）のIPアドレスは何になるでしょうか？
+            ルーターAから10.0.0.0/24ネットワークへのスタティックルートを設定する場合、次のホップ（転送先）のIPアドレスは何になるでしょうか？
           </p>
         </div>
 
@@ -104,22 +102,17 @@ export default function RoutingLearnPage() {
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">PC1のデフォルトゲートウェイは何になるでしょうか？</p>
-          <RadioGroup value={defaultGateway} onValueChange={setDefaultGateway}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="192.168.1.1" id="r1" />
-              <Label htmlFor="r1">192.168.1.1</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="10.0.0.1" id="r2" />
-              <Label htmlFor="r2">10.0.0.1</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="192.168.1.10" id="r3" />
-              <Label htmlFor="r3">192.168.1.10</Label>
-            </div>
-          </RadioGroup>
-          <Button onClick={checkDefaultGateway} className="bg-green-500 hover:bg-green-600 text-white">
+          <p className="text-lg font-semibold">
+            ルーターAで10.0.0.0/24ネットワーク宛てのスタティックルートを設定するコマンドは何でしょうか？
+          </p>
+          <Input
+            type="text"
+            placeholder="ルーティングコマンドを入力"
+            value={routeCommand}
+            onChange={(e) => setRouteCommand(e.target.value)}
+            className="flex-1 bg-white text-black placeholder-gray-500"
+          />
+          <Button onClick={checkRouteCommand} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -131,24 +124,22 @@ export default function RoutingLearnPage() {
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">
-            大規模ネットワークで一般的に使用される動的ルーティングプロトコルはどれですか？
-          </p>
-          <RadioGroup value={routingProtocol} onValueChange={setRoutingProtocol}>
+          <p className="text-lg font-semibold">デフォルトルート（0.0.0.0/0）の役割は何ですか？</p>
+          <RadioGroup value={defaultRoute} onValueChange={setDefaultRoute}>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="rip" id="rp1" />
-              <Label htmlFor="rp1">RIP</Label>
+              <RadioGroupItem value="a" id="r1" />
+              <Label htmlFor="r1">最も高速なルートを選択する</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="ospf" id="rp2" />
-              <Label htmlFor="rp2">OSPF</Label>
+              <RadioGroupItem value="b" id="r2" />
+              <Label htmlFor="r2">他のルートが一致しない場合に使用される</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="bgp" id="rp3" />
-              <Label htmlFor="rp3">BGP</Label>
+              <RadioGroupItem value="c" id="r3" />
+              <Label htmlFor="r3">ルーティングテーブルを自動的に更新する</Label>
             </div>
           </RadioGroup>
-          <Button onClick={checkRoutingProtocol} className="bg-green-500 hover:bg-green-600 text-white">
+          <Button onClick={checkDefaultRoute} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -169,11 +160,10 @@ export default function RoutingLearnPage() {
         {showHint && (
           <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
             <p className="text-base md:text-lg text-white">
-              <strong>ヒント:</strong> PC2は10.0.0.0ネットワークにあります。
-              ルーターAからこのネットワークに到達するには、直接接続されているルーターBを経由する必要があります。
-              ルーターBのIPアドレスに注目してください。
-              デフォルトゲートウェイは、PCが自分のネットワーク外と通信する際に使用するルーターのIPアドレスです。
-              動的ルーティングプロトコルは、ネットワークの変更に自動的に対応できます。OSPFは、大規模ネットワークで広く使用されています。
+              <strong>ヒント:</strong> スタティックルートを設定する際は、宛先ネットワーク、サブネットマスク、
+              そして次のホップ（またはインターフェース）を指定します。次のホップは、直接接続されているルーターのIPアドレスになります。
+              'ip route'コマンドの一般的な形式は「ip route [宛先ネットワーク] [サブネットマスク] [次のホップ]」です。
+              デフォルトルートは、ルーティングテーブル内の他のルートが宛先と一致しない場合に使用される「最後の手段」のルートです。
             </p>
           </div>
         )}
