@@ -32,7 +32,7 @@ const challenges = [
 
 export default function ChallengePage() {
   return (
-    <Layout title="チャレンジモード編 🏆" backLink="/" backText="メニューに戻る">
+    <Layout title="チャレンジモード編 🏆" backLink="/" backText="トップメニューに戻る">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-4">
         {challenges.map((challenge) => (
           <Button
