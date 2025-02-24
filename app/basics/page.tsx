@@ -173,7 +173,7 @@ export default function NetworkBasicsPage() {
           <div className="bg-blue-900 bg-opacity-50 p-4 rounded-lg mb-4">
             <h3 className="text-xl font-bold mb-2">問題 1</h3>
             <p className="mb-2">
-              ルーターのIPアドレスが192.168.1.1の場合、同じネットワーク内のPCに割り当てられる可能性のあるIPアドレスは次のうちどれですか？
+              ルーターのIPアドレスが192.168.1.1の場合、同じネットワーク内のPCに割り当てられる可能性のあるIPアドレスは何ですか？
             </p>
             <Input
               type="text"
