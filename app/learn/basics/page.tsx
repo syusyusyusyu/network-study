@@ -228,24 +228,22 @@ export default function NetworkBasicsPage() {
             ルーティングは、データパケットが出発地から目的地まで最適な経路を見つけて送信される過程です。
           </p>
           <p className="mb-2">ルーターは、異なるネットワーク間でデータを転送する装置です。</p>
-          <p className="mb-4">
-            ルーティングテーブルには、宛先ネットワークと、そのネットワークに到達するための次のホップ（転送先）の情報が含まれています。
-          </p>
+          <p className="mb-4">スタティックルーティングは、管理者が手動でルーティングテーブルを設定する方法です。</p>
           <div className="bg-blue-900 bg-opacity-50 p-4 rounded-lg mb-4">
             <h3 className="text-xl font-bold mb-2">問題 1</h3>
-            <p className="mb-2">ルーターの主な役割は何ですか？</p>
+            <p className="mb-2">スタティックルーティングの主な特徴は何ですか？</p>
             <RadioGroup value={routingAnswer1} onValueChange={setRoutingAnswer1}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="r1" />
-                <Label htmlFor="r1">データの保存</Label>
+                <Label htmlFor="r1">自動的にルートを学習する</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="b" id="r2" />
-                <Label htmlFor="r2">異なるネットワーク間でのデータ転送</Label>
+                <Label htmlFor="r2">管理者が手動でルートを設定する</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="r3" />
-                <Label htmlFor="r3">ウェブサイトの表示</Label>
+                <Label htmlFor="r3">ネットワークトポロジの変更に自動的に対応する</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkRoutingAnswer1} className="mt-2">
@@ -255,19 +253,19 @@ export default function NetworkBasicsPage() {
           </div>
           <div className="bg-blue-900 bg-opacity-50 p-4 rounded-lg mb-4">
             <h3 className="text-xl font-bold mb-2">問題 2</h3>
-            <p className="mb-2">次のうち、動的ルーティングプロトコルはどれですか？</p>
+            <p className="mb-2">スタティックルートを設定するためのCisco IOSコマンドは次のうちどれですか？</p>
             <RadioGroup value={routingAnswer2} onValueChange={setRoutingAnswer2}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="r4" />
-                <Label htmlFor="r4">OSPF (Open Shortest Path First)</Label>
+                <Label htmlFor="r4">ip route</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="b" id="r5" />
-                <Label htmlFor="r5">NAT (Network Address Translation)</Label>
+                <Label htmlFor="r5">router static</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="r6" />
-                <Label htmlFor="r6">ARP (Address Resolution Protocol)</Label>
+                <Label htmlFor="r6">set route</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkRoutingAnswer2} className="mt-2">
@@ -277,7 +275,7 @@ export default function NetworkBasicsPage() {
           </div>
           <div className="bg-blue-900 bg-opacity-50 p-4 rounded-lg">
             <h3 className="text-xl font-bold mb-2">問題 3</h3>
-            <p className="mb-2">デフォルトルートの役割は何ですか？</p>
+            <p className="mb-2">デフォルトルート（0.0.0.0/0）の役割は何ですか？</p>
             <RadioGroup value={routingAnswer3} onValueChange={setRoutingAnswer3}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="r7" />
@@ -454,7 +452,6 @@ export default function NetworkBasicsPage() {
           </Button>
         </div>
       </div>
-  </Layout>
+    </Layout>
   )
 }
-
