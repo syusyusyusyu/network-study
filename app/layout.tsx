@@ -16,9 +16,8 @@ const nunito = Nunito({
 })
 
 export const metadata: Metadata = {
-  title: "ネットワーク冒険物語",
-  description: "ネットワークの仕組みを楽しく学ぼう！",
-    generator: 'v0.dev'
+  title: "ネットワークの浅瀬を物語",
+  description: "",
 }
 
 export default function RootLayout({
