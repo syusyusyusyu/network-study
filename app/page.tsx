@@ -5,7 +5,7 @@ import { Layout } from "@/components/Layout"
 
 export default function Home() {
   return (
-    <Layout title="CCNAの浅瀬（仮） 🚀">
+    <Layout title="ひとくちCCNA 🚀">
       <div className="text-center mb-8">
         <p className="text-xl md:text-2xl mb-8 text-white max-w-2xl mx-auto px-4">
           ネットワークの仕組みを楽しく学ぼう！
