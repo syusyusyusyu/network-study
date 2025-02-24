@@ -25,8 +25,10 @@ const connections = [
 export default function RoutingChallengePage() {
   const [answer, setAnswer] = useState("")
   const [routingProtocol, setRoutingProtocol] = useState("")
+  const [ospfArea, setOspfArea] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
+  const [feedback3, setFeedback3] = useState("")
   const [progress, setProgress] = useState(0)
   const [showHint, setShowHint] = useState(false)
 
@@ -39,11 +41,11 @@ export default function RoutingChallengePage() {
     ]
 
     const score = requiredCommands.filter((cmd) => cmd.test(answer)).length
-    const newProgress = (score / requiredCommands.length) * 50
+    const newProgress = (score / requiredCommands.length) * 33
 
     setProgress(newProgress)
 
-    if (newProgress === 50) {
+    if (newProgress === 33) {
       setFeedback("素晴らしい！正しいルーティング設定です！ 🎉")
     } else {
       setFeedback("惜しい！もう一度確認してみよう。すべての必要なコマンドが含まれているか確認してください。 🤔")
@@ -53,11 +55,20 @@ export default function RoutingChallengePage() {
   const checkRoutingProtocol = () => {
     if (routingProtocol === "ospf") {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => prev + 50)
+      setProgress((prev) => prev + 33)
     } else {
       setFeedback2(
         "もう一度考えてみよう。大規模ネットワークで一般的に使用される動的ルーティングプロトコルはどれでしょうか？ 💪",
       )
+    }
+  }
+
+  const checkOSPFArea = () => {
+    if (ospfArea === "b") {
+      setFeedback3("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => prev + 34)
+    } else {
+      setFeedback3("もう一度考えてみよう。OSPFのエリア0の役割を思い出してください。 💪")
     }
   }
 
@@ -126,6 +137,33 @@ export default function RoutingChallengePage() {
           </p>
         )}
 
+        <div className="mt-6 space-y-4">
+          <p className="text-lg font-semibold">OSPFのエリア0（バックボーンエリア）の役割は何ですか？</p>
+          <RadioGroup value={ospfArea} onValueChange={setOspfArea}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="a" id="o1" />
+              <Label htmlFor="o1">他のエリアからの経路情報を受け取らない</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="b" id="o2" />
+              <Label htmlFor="o2">すべてのエリアを相互接続する</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="c" id="o3" />
+              <Label htmlFor="o3">外部ネットワークとの接続のみを行う</Label>
+            </div>
+          </RadioGroup>
+          <Button onClick={checkOSPFArea} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
+        </div>
+
+        {feedback3 && (
+          <p className={`mt-4 text-lg ${feedback3.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback3}
+          </p>
+        )}
+
         <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
         <p className="text-base md:text-lg text-gray-200 mb-4">進捗: {progress}% 🚀</p>
 
@@ -139,6 +177,7 @@ export default function RoutingChallengePage() {
               <strong>ヒント:</strong> スタティックルートの設定には「ip route」コマンドを使用します。
               インターフェースの設定には「interface」コマンドを使用し、その後にIPアドレスの設定と有効化を行います。
               動的ルーティングプロトコルについては、スケーラビリティと収束速度を考慮してください。
+              OSPFのエリア0は、OSPFネットワークの中心的な役割を果たします。
             </p>
           </div>
         )}

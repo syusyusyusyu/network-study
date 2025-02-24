@@ -23,18 +23,20 @@ const connections = [
 export default function IPAddressLearnPage() {
   const [ipAddress, setIpAddress] = useState("")
   const [subnetMask, setSubnetMask] = useState("")
+  const [networkClass, setNetworkClass] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
+  const [feedback3, setFeedback3] = useState("")
   const [progress, setProgress] = useState(0)
   const [showHint, setShowHint] = useState(false)
 
   const checkIPAddress = () => {
     if (ipAddress.trim() === "192.168.1.11") {
       setFeedback("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 50, 100))
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else if (ipAddress.startsWith("192.168.1.")) {
       setFeedback("惜しい！同じネットワーク内の別のアドレスを考えてみよう。 🤔")
-      setProgress((prev) => Math.min(prev + 25, 100))
+      setProgress((prev) => Math.min(prev + 16, 100))
     } else {
       setFeedback("もう一度考えてみよう。ルーターとパソコン1のIPアドレスをヒントにしてね。 💪")
     }
@@ -43,9 +45,18 @@ export default function IPAddressLearnPage() {
   const checkSubnetMask = () => {
     if (subnetMask === "255.255.255.0") {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 50, 100))
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else {
       setFeedback2("もう一度考えてみよう。一般的な家庭用ネットワークのサブネットマスクを思い出してね。 💪")
+    }
+  }
+
+  const checkNetworkClass = () => {
+    if (networkClass === "c") {
+      setFeedback3("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => Math.min(prev + 34, 100))
+    } else {
+      setFeedback3("もう一度考えてみよう。192.168.x.xのネットワークはどのクラスに属するでしょうか？ 💪")
     }
   }
 
@@ -115,6 +126,33 @@ export default function IPAddressLearnPage() {
           </p>
         )}
 
+        <div className="mt-6 space-y-4">
+          <p className="text-lg font-semibold">このネットワーク（192.168.1.0）はどのネットワーククラスに属しますか？</p>
+          <RadioGroup value={networkClass} onValueChange={setNetworkClass}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="a" id="nc1" />
+              <Label htmlFor="nc1">クラスA</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="b" id="nc2" />
+              <Label htmlFor="nc2">クラスB</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="c" id="nc3" />
+              <Label htmlFor="nc3">クラスC</Label>
+            </div>
+          </RadioGroup>
+          <Button onClick={checkNetworkClass} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
+        </div>
+
+        {feedback3 && (
+          <p className={`mt-4 text-lg ${feedback3.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback3}
+          </p>
+        )}
+
         <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
         <p className="text-base md:text-lg text-gray-200 mb-4">理解度: {progress}% 🚀</p>
 
@@ -130,6 +168,7 @@ export default function IPAddressLearnPage() {
               最後の数字は、他のデバイスと被らない数字を選びましょう。
               サブネットマスクは、ネットワーク部とホスト部を区別するために使用されます。
               一般的な家庭用ネットワークでは、24ビットのネットワーク部を持つことが多いです。
+              ネットワーククラスは、IPアドレスの最初のオクテット（8ビット）によって決定されます。
             </p>
           </div>
         )}

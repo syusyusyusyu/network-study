@@ -25,18 +25,20 @@ const connections = [
 export default function RoutingLearnPage() {
   const [nextHop, setNextHop] = useState("")
   const [defaultGateway, setDefaultGateway] = useState("")
+  const [routingProtocol, setRoutingProtocol] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
+  const [feedback3, setFeedback3] = useState("")
   const [progress, setProgress] = useState(0)
   const [showHint, setShowHint] = useState(false)
 
   const checkNextHop = () => {
     if (nextHop.trim() === "10.0.0.1") {
       setFeedback("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 50, 100))
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else if (nextHop.startsWith("10.0.0.")) {
       setFeedback("惜しい！正しいネットワークですが、具体的なアドレスを考えてみよう。 🤔")
-      setProgress((prev) => Math.min(prev + 25, 100))
+      setProgress((prev) => Math.min(prev + 16, 100))
     } else {
       setFeedback("もう一度考えてみよう。ルーターBのIPアドレスに注目してね。 💪")
     }
@@ -45,9 +47,20 @@ export default function RoutingLearnPage() {
   const checkDefaultGateway = () => {
     if (defaultGateway === "192.168.1.1") {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 50, 100))
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else {
       setFeedback2("もう一度考えてみよう。PC1が接続しているルーターのIPアドレスを確認してね。 💪")
+    }
+  }
+
+  const checkRoutingProtocol = () => {
+    if (routingProtocol === "ospf") {
+      setFeedback3("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => Math.min(prev + 34, 100))
+    } else {
+      setFeedback3(
+        "もう一度考えてみよう。大規模ネットワークで一般的に使用される動的ルーティングプロトコルはどれでしょうか？ 💪",
+      )
     }
   }
 
@@ -117,6 +130,35 @@ export default function RoutingLearnPage() {
           </p>
         )}
 
+        <div className="mt-6 space-y-4">
+          <p className="text-lg font-semibold">
+            大規模ネットワークで一般的に使用される動的ルーティングプロトコルはどれですか？
+          </p>
+          <RadioGroup value={routingProtocol} onValueChange={setRoutingProtocol}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="rip" id="rp1" />
+              <Label htmlFor="rp1">RIP</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="ospf" id="rp2" />
+              <Label htmlFor="rp2">OSPF</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="bgp" id="rp3" />
+              <Label htmlFor="rp3">BGP</Label>
+            </div>
+          </RadioGroup>
+          <Button onClick={checkRoutingProtocol} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
+        </div>
+
+        {feedback3 && (
+          <p className={`mt-4 text-lg ${feedback3.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback3}
+          </p>
+        )}
+
         <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
         <p className="text-base md:text-lg text-gray-200 mb-4">理解度: {progress}% 🚀</p>
 
@@ -131,6 +173,7 @@ export default function RoutingLearnPage() {
               ルーターAからこのネットワークに到達するには、直接接続されているルーターBを経由する必要があります。
               ルーターBのIPアドレスに注目してください。
               デフォルトゲートウェイは、PCが自分のネットワーク外と通信する際に使用するルーターのIPアドレスです。
+              動的ルーティングプロトコルは、ネットワークの変更に自動的に対応できます。OSPFは、大規模ネットワークで広く使用されています。
             </p>
           </div>
         )}

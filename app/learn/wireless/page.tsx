@@ -23,18 +23,20 @@ const connections = [
 export default function WirelessLearnPage() {
   const [ssid, setSSID] = useState("")
   const [securityProtocol, setSecurityProtocol] = useState("")
+  const [channel, setChannel] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
+  const [feedback3, setFeedback3] = useState("")
   const [progress, setProgress] = useState(0)
   const [showHint, setShowHint] = useState(false)
 
   const checkSSID = () => {
     if (ssid.trim().toLowerCase() === "myhomewifi") {
       setFeedback("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 50, 100))
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else if (ssid.trim().length > 0) {
       setFeedback("惜しい！SSIDは通常、分かりやすい名前が使われます。もう一度考えてみよう。 🤔")
-      setProgress((prev) => Math.min(prev + 25, 100))
+      setProgress((prev) => Math.min(prev + 16, 100))
     } else {
       setFeedback("SSIDを入力してください。ヒントを参考にしてみてね。 💪")
     }
@@ -43,9 +45,18 @@ export default function WirelessLearnPage() {
   const checkSecurityProtocol = () => {
     if (securityProtocol === "wpa3") {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 50, 100))
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else {
       setFeedback2("もう一度考えてみよう。最新で最も安全なWi-Fiセキュリティプロトコルはどれでしょうか？ 💪")
+    }
+  }
+
+  const checkChannel = () => {
+    if (channel === "b") {
+      setFeedback3("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => Math.min(prev + 34, 100))
+    } else {
+      setFeedback3("もう一度考えてみよう。2.4GHz帯で使用可能なチャンネル数を確認してみてね。 💪")
     }
   }
 
@@ -113,6 +124,33 @@ export default function WirelessLearnPage() {
           </p>
         )}
 
+        <div className="mt-6 space-y-4">
+          <p className="text-lg font-semibold">2.4GHz帯のWi-Fiで使用可能なチャンネル数は通常いくつですか？</p>
+          <RadioGroup value={channel} onValueChange={setChannel}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="a" id="c1" />
+              <Label htmlFor="c1">5チャンネル</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="b" id="c2" />
+              <Label htmlFor="c2">14チャンネル</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="c" id="c3" />
+              <Label htmlFor="c3">20チャンネル</Label>
+            </div>
+          </RadioGroup>
+          <Button onClick={checkChannel} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
+        </div>
+
+        {feedback3 && (
+          <p className={`mt-4 text-lg ${feedback3.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback3}
+          </p>
+        )}
+
         <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
         <p className="text-base md:text-lg text-gray-200 mb-4">理解度: {progress}% 🚀</p>
 
@@ -128,6 +166,8 @@ export default function WirelessLearnPage() {
               例えば、"MyHomeWiFi"のような名前かもしれません。
               Wi-Fiセキュリティプロトコルは、時代とともに進化しています。最新のプロトコルは、
               より強力な暗号化と認証メカニズムを提供します。
+              2.4GHz帯のWi-Fiチャンネルは、国や地域によって異なる場合がありますが、
+              多くの国では1から13または14のチャンネルが使用可能です。
             </p>
           </div>
         )}

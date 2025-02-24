@@ -31,8 +31,10 @@ export default function IPAddressChallengePage() {
     server: "",
   })
   const [networkClass, setNetworkClass] = useState("")
+  const [subnetMask, setSubnetMask] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
+  const [feedback3, setFeedback3] = useState("")
   const [progress, setProgress] = useState(0)
 
   const checkAnswers = () => {
@@ -42,12 +44,12 @@ export default function IPAddressChallengePage() {
       server: "192.168.1.10",
     }
 
-    const score = Object.keys(correctAnswers).filter((key) => answers[key].trim() === correctAnswers[key]).length
-    const newProgress = (score / Object.keys(correctAnswers).length) * 50
+    const score = (Object.keys(correctAnswers) as (keyof typeof answers)[]).filter((key) => answers[key].trim() === correctAnswers[key]).length
+    const newProgress = (score / Object.keys(correctAnswers).length) * 33
 
     setProgress(newProgress)
 
-    if (newProgress === 50) {
+    if (newProgress === 33) {
       setFeedback("すべて正解です！素晴らしい設定です！ 🎉")
     } else {
       setFeedback("惜しい！もう一度確認してみよう。 🤔")
@@ -57,9 +59,18 @@ export default function IPAddressChallengePage() {
   const checkNetworkClass = () => {
     if (networkClass === "c") {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => prev + 50)
+      setProgress((prev) => prev + 33)
     } else {
       setFeedback2("もう一度考えてみよう。192.168.x.xのネットワークはどのクラスに属するでしょうか？ 💪")
+    }
+  }
+
+  const checkSubnetMask = () => {
+    if (subnetMask === "255.255.255.0") {
+      setFeedback3("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => prev + 34)
+    } else {
+      setFeedback3("もう一度考えてみよう。このネットワークで一般的に使用されるサブネットマスクは何でしょうか？ 💪")
     }
   }
 
@@ -74,6 +85,7 @@ export default function IPAddressChallengePage() {
         <ul className="list-disc list-inside mb-4 text-sm">
           <li>ネットワークアドレス: 192.168.1.0/24</li>
           <li>ルーター(R1)のIPアドレス: 192.168.1.1</li>
+
           <li>PC1とPC2には連続したIPアドレスを割り当てる</li>
           <li>サーバーには10番のIPアドレスを割り当てる</li>
         </ul>
@@ -151,6 +163,33 @@ export default function IPAddressChallengePage() {
         {feedback2 && (
           <p className={`mt-4 text-lg ${feedback2.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
             {feedback2}
+          </p>
+        )}
+
+        <div className="mt-6 space-y-4">
+          <p className="text-lg font-semibold">このネットワークで使用されるサブネットマスクは何ですか？</p>
+          <RadioGroup value={subnetMask} onValueChange={setSubnetMask}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="255.0.0.0" id="sm1" />
+              <Label htmlFor="sm1">255.0.0.0</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="255.255.0.0" id="sm2" />
+              <Label htmlFor="sm2">255.255.0.0</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="255.255.255.0" id="sm3" />
+              <Label htmlFor="sm3">255.255.255.0</Label>
+            </div>
+          </RadioGroup>
+          <Button onClick={checkSubnetMask} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
+        </div>
+
+        {feedback3 && (
+          <p className={`mt-4 text-lg ${feedback3.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback3}
           </p>
         )}
 
