@@ -5,10 +5,10 @@ import { Layout } from "@/components/Layout"
 
 export default function Home() {
   return (
-    <Layout title="ネットワーク冒険物語 🚀">
+    <Layout title="ネットワーク？（仮） 🚀">
       <div className="text-center mb-8">
         <p className="text-xl md:text-2xl mb-8 text-white max-w-2xl mx-auto px-4">
-          インターネットの世界を冒険しながら、ネットワークの仕組みを楽しく学ぼう！
+          ネットワークの仕組みを楽しく学ぼう！
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl px-4">
