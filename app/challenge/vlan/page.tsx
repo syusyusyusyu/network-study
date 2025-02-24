@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 
 const devices = [
-  { type: "switch" as const, x: 300, y: 50, label: "コアスイッチ" },
+  { type: "switch" as const, x: 300, y: 50, label: "L3スイッチ" },
   { type: "switch" as const, x: 150, y: 150, label: "スイッチA" },
   { type: "switch" as const, x: 450, y: 150, label: "スイッチB" },
   { type: "pc" as const, x: 75, y: 250, label: "営業部PC", ip: "VLAN 10" },
