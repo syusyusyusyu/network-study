@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { BookOpen, Trophy, BarChart } from "lucide-react"
 import { Layout } from "@/components/Layout"
 
-export default function Home() {
+export default function Home() {　
   return (
     <Layout title="ネットワーク冒険物語 🚀">
       <div className="text-center mb-8">
