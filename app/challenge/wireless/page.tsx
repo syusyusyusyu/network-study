@@ -4,54 +4,59 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { NetworkDiagram } from "@/components/NetworkDiagram"
+import { Layout } from "@/components/Layout"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { Layout } from "@/components/Layout"
 
-export default function WirelessChallengePage() {
+const devices = [
+  { type: "router" as const, x: 300, y: 50, label: "無線ルーター", ip: "192.168.1.1" },
+  { type: "pc" as const, x: 150, y: 150, label: "ノートPC", ip: "192.168.1.10" },
+  { type: "pc" as const, x: 450, y: 150, label: "スマートフォン", ip: "192.168.1.20" },
+]
+
+const connections = [
+  { from: 0, to: 1, label: "Wi-Fi" },
+  { from: 0, to: 2, label: "Wi-Fi" },
+]
+
+export default function WirelessLearnPage() {
   const [ssid, setSSID] = useState("")
-  const [password, setPassword] = useState("")
+  const [securityProtocol, setSecurityProtocol] = useState("")
   const [channel, setChannel] = useState("")
-  const [security, setSecurity] = useState("")
-  const [frequency, setFrequency] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
+  const [feedback3, setFeedback3] = useState("")
   const [progress, setProgress] = useState(0)
   const [showHint, setShowHint] = useState(false)
 
-  const checkWireless = () => {
-    const channelValue = Number.parseInt(channel)
-
-    if (
-      ssid.length > 0 &&
-      password.length >= 8 &&
-      !isNaN(channelValue) &&
-      channelValue >= 1 &&
-      channelValue <= 14 &&
-      security !== ""
-    ) {
-      setFeedback("正しい無線LAN設定です！")
-      setProgress(50)
+  const checkSSID = () => {
+    if (ssid.trim().toLowerCase() === "myhomewifi") {
+      setFeedback("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => Math.min(prev + 33, 100))
+    } else if (ssid.trim().length > 0) {
+      setFeedback("惜しい！SSIDは通常、分かりやすい名前が使われます。もう一度考えてみよう。 🤔")
+      setProgress((prev) => Math.min(prev + 16, 100))
     } else {
-      const errorMessage = []
-      if (ssid.length === 0) errorMessage.push("SSIDを入力してください")
-      if (password.length < 8) errorMessage.push("パスワードは8文字以上である必要があります")
-      if (isNaN(channelValue) || channelValue < 1 || channelValue > 14)
-        errorMessage.push("チャンネルは1から14の範囲内である必要があります")
-      if (security === "") errorMessage.push("セキュリティタイプを選択してください")
-
-      setFeedback(errorMessage.join(", "))
-      setProgress(25)
+      setFeedback("SSIDを入力してください。ヒントを参考にしてみてね。 💪")
     }
   }
 
-  const checkFrequency = () => {
-    if (frequency === "5") {
+  const checkSecurityProtocol = () => {
+    if (securityProtocol === "wpa3") {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => prev + 50)
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else {
-      setFeedback2("もう一度考えてみよう。より高速な通信が可能な周波数帯はどちらでしょうか？ 💪")
+      setFeedback2("もう一度考えてみよう。最新で最も安全なWi-Fiセキュリティプロトコルはどれでしょうか？ 💪")
+    }
+  }
+
+  const checkChannel = () => {
+    if (channel === "b") {
+      setFeedback3("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => Math.min(prev + 34, 100))
+    } else {
+      setFeedback3("もう一度考えてみよう。2.4GHz帯で使用可能なチャンネル数を確認してみてね。 💪")
     }
   }
 
@@ -60,66 +65,55 @@ export default function WirelessChallengePage() {
   }
 
   return (
-    <Layout title="無線LANチャレンジ 📡" backLink="/challenge" backText="チャレンジ一覧に戻る">
+    <Layout title="空飛ぶネット 📡" backLink="/learn" backText="学習メニューに戻る">
       <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
-        <p className="mb-4">
-          ネットワーク管理者として、新しい無線LANを設定する必要があります。
-          SSID、パスワード、チャンネル、およびセキュリティタイプを設定してください。
-        </p>
-        <div className="flex flex-col space-y-2 mb-4">
+        <NetworkDiagram devices={devices} connections={connections} />
+
+        <div className="mt-6 space-y-4">
+          <p className="text-lg">上の図は、無線LANルーターとそれに接続された2つのデバイスを表しています。</p>
+          <p className="text-lg">
+            無線LAN（Wi-Fi）は、ケーブルを使わずにインターネットに接続できる技術です。
+            SSIDは、Wi-Fiネットワークの名前のことで、デバイスがネットワークを識別するために使用します。
+          </p>
+          <p className="text-lg font-semibold">この家庭用Wi-FiネットワークのSSIDは何だと思いますか？</p>
+        </div>
+
+        <div className="mt-6 flex flex-col md:flex-row gap-2">
           <Input
             type="text"
-            placeholder="SSID"
+            placeholder="SSIDを入力"
             value={ssid}
             onChange={(e) => setSSID(e.target.value)}
-            className="bg-white text-black placeholder-gray-500"
+            className="flex-1 bg-white text-black placeholder-gray-500"
           />
-          <Input
-            type="password"
-            placeholder="パスワード（8文字以上）"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="bg-white text-black placeholder-gray-500"
-          />
-          <Input
-            type="number"
-            placeholder="チャンネル（1-14）"
-            value={channel}
-            onChange={(e) => setChannel(e.target.value)}
-            min="1"
-            max="14"
-            className="bg-white text-black placeholder-gray-500"
-          />
-          <Select onValueChange={setSecurity}>
-            <SelectTrigger className="bg-white text-black">
-              <SelectValue placeholder="セキュリティタイプ" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="wep">WEP</SelectItem>
-              <SelectItem value="wpa">WPA</SelectItem>
-              <SelectItem value="wpa2">WPA2</SelectItem>
-              <SelectItem value="wpa3">WPA3</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={checkWireless}>チェック</Button>
+          <Button onClick={checkSSID} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
         </div>
+
         {feedback && (
-          <p className={`mb-4 ${feedback.includes("正しい") ? "text-green-300" : "text-yellow-300"}`}>{feedback}</p>
+          <p className={`mt-4 text-lg ${feedback.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback}
+          </p>
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">より高速な通信が可能な周波数帯はどちらでしょうか？</p>
-          <RadioGroup value={frequency} onValueChange={setFrequency}>
+          <p className="text-lg font-semibold">最新のWi-Fiセキュリティプロトコルは次のうちどれでしょうか？</p>
+          <RadioGroup value={securityProtocol} onValueChange={setSecurityProtocol}>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="2.4" id="r1" />
-              <Label htmlFor="r1">2.4 GHz</Label>
+              <RadioGroupItem value="wep" id="r1" />
+              <Label htmlFor="r1">WEP</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="5" id="r2" />
-              <Label htmlFor="r2">5 GHz</Label>
+              <RadioGroupItem value="wpa2" id="r2" />
+              <Label htmlFor="r2">WPA2</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="wpa3" id="r3" />
+              <Label htmlFor="r3">WPA3</Label>
             </div>
           </RadioGroup>
-          <Button onClick={checkFrequency} className="bg-green-500 hover:bg-green-600 text-white">
+          <Button onClick={checkSecurityProtocol} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -130,8 +124,35 @@ export default function WirelessChallengePage() {
           </p>
         )}
 
+        <div className="mt-6 space-y-4">
+          <p className="text-lg font-semibold">2.4GHz帯のWi-Fiで使用可能なチャンネル数は通常いくつですか？</p>
+          <RadioGroup value={channel} onValueChange={setChannel}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="a" id="c1" />
+              <Label htmlFor="c1">5チャンネル</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="b" id="c2" />
+              <Label htmlFor="c2">14チャンネル</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="c" id="c3" />
+              <Label htmlFor="c3">20チャンネル</Label>
+            </div>
+          </RadioGroup>
+          <Button onClick={checkChannel} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
+        </div>
+
+        {feedback3 && (
+          <p className={`mt-4 text-lg ${feedback3.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback3}
+          </p>
+        )}
+
         <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
-        <p className="text-base md:text-lg text-gray-200 mb-4">進捗: {progress}% 🚀</p>
+        <p className="text-base md:text-lg text-gray-200 mb-4">理解度: {progress}% 🚀</p>
 
         <Button onClick={toggleHint} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
           {showHint ? "ヒントを隠す 🙈" : "ヒントを見る 💡"}
@@ -140,11 +161,13 @@ export default function WirelessChallengePage() {
         {showHint && (
           <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
             <p className="text-base md:text-lg text-white">
-              <strong>ヒント:</strong> 無線LANの設定では、一意のSSIDと強力なパスワードが重要です。
-              チャンネルは混信を避けるために適切に選択する必要があります。
-              セキュリティタイプは、最新のものほど安全性が高くなります。
-              周波数帯については、高い周波数帯のほうが一般的に高速な通信が可能ですが、
-              壁などの障害物の影響を受けやすいという特徴があります。
+              <strong>ヒント:</strong> SSIDは通常、ネットワークの所有者や目的を示す分かりやすい名前が使われます。
+              この場合、家庭用のWi-Fiネットワークなので、どんな名前が適切でしょうか？
+              例えば、"MyHomeWiFi"のような名前かもしれません。
+              Wi-Fiセキュリティプロトコルは、時代とともに進化しています。最新のプロトコルは、
+              より強力な暗号化と認証メカニズムを提供します。
+              2.4GHz帯のWi-Fiチャンネルは、国や地域によって異なる場合がありますが、
+              多くの国では1から13または14のチャンネルが使用可能です。
             </p>
           </div>
         )}
