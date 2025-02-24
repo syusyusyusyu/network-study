@@ -147,7 +147,7 @@ export default function NetworkBasicsPage() {
   }
 
   return (
-    <Layout title="ネットワーク基礎知識 📚" backLink="/learn" backText="学習メニューに戻る">
+    <Layout title="ネットワーク基礎知識 📚" backLink="/.." backText="トップメニューに戻る">
       <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
         {/* IPアドレスセクション */}
         <section className="mb-8">
