@@ -1,20 +1,14 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Home, Route, Network, Wifi, Book } from "lucide-react"
+import { Route, Network, Wifi } from "lucide-react"
 import { Layout } from "@/components/Layout"
 
 const topics = [
   {
-    title: "ネットワーク基礎知識",
-    description: "用語と概念を学ぼう",
-    href: "/learn/basics",
-    icon: Book,
-  },
-  {
     title: "IPアドレスの不思議",
     description: "インターネットの住所を探検しよう",
     href: "/learn/ip-address",
-    icon: Home,
+    icon: Network,
   },
   {
     title: "道案内マスター",
@@ -38,8 +32,8 @@ const topics = [
 
 export default function LearnPage() {
   return (
-    <Layout title="学習モード編 🗺️" backLink="/" backText="トップメニューに戻る">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl px-4">
+    <Layout title="学びの冒険マップ 🗺️" backLink="/" backText="冒険の拠点に戻る">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 w-full max-w-4xl px-4">
         {topics.map((topic) => (
           <Button
             key={topic.href}

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Trophy, BarChart } from "lucide-react"
+import { BookOpen, Trophy, BarChart, Book } from "lucide-react"
 import { Layout } from "@/components/Layout"
 
 export default function Home() {
@@ -11,9 +11,10 @@ export default function Home() {
           ネットワークの仕組みを楽しく学ぼう！
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-4">
         {[
-          { href: "/learn", icon: BookOpen, title: "学習モード", description: "基礎を学ぼう" },
+          { href: "/basics", icon: Book, title: "ネットワーク基礎知識", description: "基本を学ぼう" },
+          { href: "/learn", icon: BookOpen, title: "学習モード", description: "スキルを磨こう" },
           { href: "/challenge", icon: Trophy, title: "チャレンジモード", description: "腕試しをしよう" },
           { href: "/dashboard", icon: BarChart, title: "ダッシュボード", description: "進捗を確認しよう" },
         ].map((item) => (
