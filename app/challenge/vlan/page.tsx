@@ -4,65 +4,64 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
+import { NetworkDiagram } from "@/components/NetworkDiagram"
 import { Layout } from "@/components/Layout"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 
+const devices = [
+  { type: "switch" as const, x: 300, y: 50, label: "コアスイッチ" },
+  { type: "switch" as const, x: 150, y: 150, label: "スイッチA" },
+  { type: "switch" as const, x: 450, y: 150, label: "スイッチB" },
+  { type: "pc" as const, x: 75, y: 250, label: "営業部PC", ip: "VLAN 10" },
+  { type: "pc" as const, x: 225, y: 250, label: "経理部PC", ip: "VLAN 20" },
+  { type: "pc" as const, x: 375, y: 250, label: "開発部PC", ip: "VLAN 30" },
+  { type: "server" as const, x: 525, y: 250, label: "サーバー", ip: "VLAN 40" },
+]
+
+const connections = [
+  { from: 0, to: 1, label: "Trunk" },
+  { from: 0, to: 2, label: "Trunk" },
+  { from: 1, to: 3 },
+  { from: 1, to: 4 },
+  { from: 2, to: 5 },
+  { from: 2, to: 6 },
+]
+
 export default function VLANChallengePage() {
   const [vlanId, setVlanId] = useState("")
-  const [portNumbers, setPortNumbers] = useState("")
-  const [trunkPort, setTrunkPort] = useState("")
-  const [vlanType, setVlanType] = useState("")
-  const [feedback, setFeedback] = useState("")
+  const [trunkPorts, setTrunkPorts] = useState("")
+  const [accessPort, setAccessPort] = useState("")
+  const [feedback1, setFeedback1] = useState("")
   const [feedback2, setFeedback2] = useState("")
   const [feedback3, setFeedback3] = useState("")
   const [progress, setProgress] = useState(0)
   const [showHint, setShowHint] = useState(false)
 
-  const checkVLAN = () => {
-    const vlanIdValue = Number.parseInt(vlanId)
-    const ports = portNumbers
-      .split(",")
-      .map((port) => Number.parseInt(port.trim()))
-      .filter((port) => !isNaN(port))
-
-    if (
-      !isNaN(vlanIdValue) &&
-      vlanIdValue >= 1 &&
-      vlanIdValue <= 4094 &&
-      ports.length > 0 &&
-      ports.every((port) => port >= 1 && port <= 48)
-    ) {
-      setFeedback("正しいVLAN設定です！")
-      setProgress(33)
+  const checkVlanId = () => {
+    if (vlanId === "40") {
+      setFeedback1("正解です！素晴らしい！ 🎉")
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else {
-      const errorMessage = []
-      if (isNaN(vlanIdValue) || vlanIdValue < 1 || vlanIdValue > 4094)
-        errorMessage.push("VLAN IDは1から4094の範囲内である必要が���ります")
-      if (ports.length === 0) errorMessage.push("少なくとも1つのポート番号を指定してください")
-      if (ports.some((port) => port < 1 || port > 48))
-        errorMessage.push("ポート番号は1から48の範囲内である必要があります")
-
-      setFeedback(errorMessage.join(", "))
-      setProgress(16)
+      setFeedback1("もう一度考えてみよう。サーバーが属するVLAN IDを確認してください。 💪")
     }
   }
 
-  const checkTrunkPort = () => {
-    if (trunkPort === "49") {
+  const checkTrunkPorts = () => {
+    if (trunkPorts.toLowerCase() === "1,2" || trunkPorts.toLowerCase() === "2,1") {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => prev + 33)
+      setProgress((prev) => Math.min(prev + 33, 100))
     } else {
-      setFeedback2("もう一度考えてみよう。スイッチ間を接続するポートはどれでしょうか？ 💪")
+      setFeedback2("もう一度考えてみよう。コアスイッチと他のスイッチを接続しているポートを確認してください。 💪")
     }
   }
 
-  const checkVLANType = () => {
-    if (vlanType === "b") {
+  const checkAccessPort = () => {
+    if (accessPort === "c") {
       setFeedback3("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => prev + 34)
+      setProgress((prev) => Math.min(prev + 34, 100))
     } else {
-      setFeedback3("もう一度考えてみよう。音声トラフィックに最適なVLANタイプはどれでしょうか？ 💪")
+      setFeedback3("もう一度考えてみよう。アクセスポートの役割を思い出してください。 💪")
     }
   }
 
@@ -71,52 +70,46 @@ export default function VLANChallengePage() {
   }
 
   return (
-    <Layout title="VLANチャレンジ" backLink="/challenge" backText="チャレンジ一覧に戻る">
+    <Layout title="VLANチャレンジ 🌐" backLink="/challenge" backText="チャレンジ一覧に戻る">
       <div className="bg-white bg-opacity-30 text-white p-4 md:p-8 rounded-2xl shadow-lg w-full max-w-3xl mx-auto">
-        <p className="mb-4">
-          ネットワーク管理者として、新しいVLANを設定し、特定のポートを割り当てる必要があります。 VLAN
-          ID（1-4094）とポート番号（1-48、カンマ区切り）を入力してください。
+        <NetworkDiagram devices={devices} connections={connections} />
+
+        <p className="mt-4 mb-2 text-lg font-semibold">
+          上の図は、複数のVLANが設定されたネットワークを表しています。以下の質問に答えてください：
         </p>
-        <div className="flex space-x-2 mb-4">
-          <Input
-            type="number"
-            placeholder="VLAN ID"
-            value={vlanId}
-            onChange={(e) => setVlanId(e.target.value)}
-            min="1"
-            max="4094"
-            className="bg-white text-black placeholder-gray-500"
-          />
+
+        <div className="mt-6 space-y-4">
+          <p className="text-lg font-semibold">1. サーバーが属するVLAN IDは何ですか？</p>
           <Input
             type="text"
-            placeholder="ポート番号（例: 1,2,3）"
-            value={portNumbers}
-            onChange={(e) => setPortNumbers(e.target.value)}
-            className="bg-white text-black placeholder-gray-500"
+            placeholder="VLAN IDを入力"
+            value={vlanId}
+            onChange={(e) => setVlanId(e.target.value)}
+            className="flex-1 bg-white text-black placeholder-gray-500"
           />
-          <Button onClick={checkVLAN}>チェック</Button>
+          <Button onClick={checkVlanId} className="bg-green-500 hover:bg-green-600 text-white">
+            チェック
+          </Button>
         </div>
-        {feedback && (
-          <p className={`mb-4 ${feedback.includes("正しい") ? "text-green-300" : "text-yellow-300"}`}>{feedback}</p>
+
+        {feedback1 && (
+          <p className={`mt-4 text-lg ${feedback1.includes("正解") ? "text-green-300" : "text-yellow-300"}`}>
+            {feedback1}
+          </p>
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">2つのスイッチを接続するトランクポートの番号は何番でしょうか？</p>
-          <RadioGroup value={trunkPort} onValueChange={setTrunkPort}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="1" id="r1" />
-              <Label htmlFor="r1">ポート1</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="24" id="r2" />
-              <Label htmlFor="r2">ポート24</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="49" id="r3" />
-              <Label htmlFor="r3">ポート49</Label>
-            </div>
-          </RadioGroup>
-          <Button onClick={checkTrunkPort} className="bg-green-500 hover:bg-green-600 text-white">
+          <p className="text-lg font-semibold">
+            2. コアスイッチ上のトランクポートの番号はどれですか？（カンマ区切りで入力）
+          </p>
+          <Input
+            type="text"
+            placeholder="ポート番号を入力（例: 1,2）"
+            value={trunkPorts}
+            onChange={(e) => setTrunkPorts(e.target.value)}
+            className="flex-1 bg-white text-black placeholder-gray-500"
+          />
+          <Button onClick={checkTrunkPorts} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -128,22 +121,22 @@ export default function VLANChallengePage() {
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">音声トラフィック用に最適なVLANタイプはどれですか？</p>
-          <RadioGroup value={vlanType} onValueChange={setVlanType}>
+          <p className="text-lg font-semibold">3. アクセスポートの役割は何ですか？</p>
+          <RadioGroup value={accessPort} onValueChange={setAccessPort}>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="a" id="vt1" />
-              <Label htmlFor="vt1">データVLAN</Label>
+              <RadioGroupItem value="a" id="a1" />
+              <Label htmlFor="a1">複数のVLANのトラフィックを伝送する</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="b" id="vt2" />
-              <Label htmlFor="vt2">音声VLAN</Label>
+              <RadioGroupItem value="b" id="a2" />
+              <Label htmlFor="a2">VLANを作成する</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="c" id="vt3" />
-              <Label htmlFor="vt3">管理VLAN</Label>
+              <RadioGroupItem value="c" id="a3" />
+              <Label htmlFor="a3">単一のVLANにデバイスを接続する</Label>
             </div>
           </RadioGroup>
-          <Button onClick={checkVLANType} className="bg-green-500 hover:bg-green-600 text-white">
+          <Button onClick={checkAccessPort} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -164,10 +157,10 @@ export default function VLANChallengePage() {
         {showHint && (
           <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
             <p className="text-base md:text-lg text-white">
-              <strong>ヒント:</strong> VLANの設定では、適切なVLAN IDとそれに属するポートを指定する必要があります。
-              トランクポートは通常、スイッチの高速ポートを使用し、複数のVLANのトラフィックを伝送します。
-              多くのスイッチでは、ポート49以降が高速ポートとして使用されることがあります。
-              音声VLANは、音声トラフィックを他のデータトラフィックから分離し、優先度を高めるために使用されます。
+              <strong>ヒント:</strong> VLANは論理的にネットワークを分割する技術です。
+              各デバイスは特定のVLANに属しています。 トランクポートは複数のVLANのトラフィックを伝送するために使用され、
+              通常スイッチ間の接続に使用されます。
+              アクセスポートは、エンドデバイス（PCやサーバーなど）を特定のVLANに接続するために使用されます。
             </p>
           </div>
         )}

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { NetworkDiagram } from "@/components/NetworkDiagram"
 import { Layout } from "@/components/Layout"
@@ -23,7 +24,7 @@ const connections = [
 export default function RoutingChallengePage() {
   const [nextHop, setNextHop] = useState("")
   const [routeNetwork, setRouteNetwork] = useState("")
-  const [defaultGateway, setDefaultGateway] = useState("")
+  const [routeCommand, setRouteCommand] = useState("")
   const [feedback, setFeedback] = useState("")
   const [feedback2, setFeedback2] = useState("")
   const [feedback3, setFeedback3] = useState("")
@@ -48,12 +49,13 @@ export default function RoutingChallengePage() {
     }
   }
 
-  const checkDefaultGateway = () => {
-    if (defaultGateway === "192.168.1.1") {
-      setFeedback3("正解です！素晴らしい！ 🎉")
+  const checkRouteCommand = () => {
+    const correctCommand = "ip route 192.168.2.0 255.255.255.0 10.0.0.2"
+    if (routeCommand.trim().toLowerCase() === correctCommand.toLowerCase()) {
+      setFeedback3("正解です！完璧なコマンドです！ 🎉")
       setProgress((prev) => prev + 34)
     } else {
-      setFeedback3("もう一度考えてみよう。PC1のデフォルトゲートウェイはどのIPアドレスになるでしょうか？ 💪")
+      setFeedback3("惜しい！もう一度確認してみよう。コマンドの形式と必要な情報を見直してください。 💪")
     }
   }
 
@@ -116,15 +118,17 @@ export default function RoutingChallengePage() {
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">3. PC1のデフォルトゲートウェイは何になりますか？</p>
-          <Input
-            type="text"
-            placeholder="デフォルトゲートウェイを入力"
-            value={defaultGateway}
-            onChange={(e) => setDefaultGateway(e.target.value)}
+          <p className="text-lg font-semibold">
+            3. R1にスタティックルートを設定するコマンドを入力してください。 （ヒント：ip route [宛先ネットワーク]
+            [サブネットマスク] [ネクストホップ]）
+          </p>
+          <Textarea
+            placeholder="ルーティングコマンドを入力"
+            value={routeCommand}
+            onChange={(e) => setRouteCommand(e.target.value)}
             className="flex-1 bg-white text-black placeholder-gray-500"
           />
-          <Button onClick={checkDefaultGateway} className="bg-green-500 hover:bg-green-600 text-white">
+          <Button onClick={checkRouteCommand} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -147,8 +151,9 @@ export default function RoutingChallengePage() {
             <p className="text-base md:text-lg text-white">
               <strong>ヒント:</strong> スタティックルートの設定には、宛先ネットワークとネクストホップの情報が必要です。
               ネクストホップは、直接接続されているルーターのIPアドレスになります。
-              宛先ネットワークは、到達したいネットワークのアドレスです。
-              デフォルトゲートウェイは、PCが所属するネットワークのルーターのIPアドレスになります。
+              宛先ネットワークは、到達したいネットワークのアドレスです。 コマンドの形式は "ip route [宛先ネットワーク]
+              [サブネットマスク] [ネクストホップ]" です。
+              サブネットマスクは通常のクラスCネットワークを想定してください。
             </p>
           </div>
         )}
