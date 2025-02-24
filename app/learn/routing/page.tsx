@@ -45,16 +45,16 @@ export default function RoutingLearnPage() {
   }
 
   const checkRouteCommand = () => {
-    if (routeCommand.toLowerCase().includes("ip route 10.0.0.0 255.255.255.0 10.0.0.1")) {
+    if (routeCommand === "b") {
       setFeedback2("正解です！素晴らしい！ 🎉")
       setProgress((prev) => Math.min(prev + 33, 100))
     } else {
-      setFeedback2("もう一度考えてみよう。'ip route'コマンドの形式を確認してね。 💪")
+      setFeedback2("もう一度考えてみよう。スタティックルートの設定に必要な情報を思い出してね。 💪")
     }
   }
 
   const checkDefaultRoute = () => {
-    if (defaultRoute === "b") {
+    if (defaultRoute === "c") {
       setFeedback3("正解です！素晴らしい！ 🎉")
       setProgress((prev) => Math.min(prev + 34, 100))
     } else {
@@ -102,16 +102,21 @@ export default function RoutingLearnPage() {
         )}
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">
-            ルーターAで10.0.0.0/24ネットワーク宛てのスタティックルートを設定するコマンドは何でしょうか？
-          </p>
-          <Input
-            type="text"
-            placeholder="ルーティングコマンドを入力"
-            value={routeCommand}
-            onChange={(e) => setRouteCommand(e.target.value)}
-            className="flex-1 bg-white text-black placeholder-gray-500"
-          />
+          <p className="text-lg font-semibold">スタティックルートを設定する際に必要な情報は何ですか？</p>
+          <RadioGroup value={routeCommand} onValueChange={setRouteCommand}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="a" id="r1" />
+              <Label htmlFor="r1">送信元IPアドレス、宛先IPアドレス、ポート番号</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="b" id="r2" />
+              <Label htmlFor="r2">宛先ネットワーク、サブネットマスク、ネクストホップ</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="c" id="r3" />
+              <Label htmlFor="r3">MACアドレス、IPアドレス、デフォルトゲートウェイ</Label>
+            </div>
+          </RadioGroup>
           <Button onClick={checkRouteCommand} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
@@ -127,16 +132,16 @@ export default function RoutingLearnPage() {
           <p className="text-lg font-semibold">デフォルトルート（0.0.0.0/0）の役割は何ですか？</p>
           <RadioGroup value={defaultRoute} onValueChange={setDefaultRoute}>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="a" id="r1" />
-              <Label htmlFor="r1">最も高速なルートを選択する</Label>
+              <RadioGroupItem value="a" id="dr1" />
+              <Label htmlFor="dr1">最も高速なルートを選択する</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="b" id="r2" />
-              <Label htmlFor="r2">他のルートが一致しない場合に使用される</Label>
+              <RadioGroupItem value="b" id="dr2" />
+              <Label htmlFor="dr2">ルーティングテーブルを自動的に更新する</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="c" id="r3" />
-              <Label htmlFor="r3">ルーティングテーブルを自動的に更新する</Label>
+              <RadioGroupItem value="c" id="dr3" />
+              <Label htmlFor="dr3">他のルートが一致しない場合に使用される</Label>
             </div>
           </RadioGroup>
           <Button onClick={checkDefaultRoute} className="bg-green-500 hover:bg-green-600 text-white">
@@ -162,7 +167,6 @@ export default function RoutingLearnPage() {
             <p className="text-base md:text-lg text-white">
               <strong>ヒント:</strong> スタティックルートを設定する際は、宛先ネットワーク、サブネットマスク、
               そして次のホップ（またはインターフェース）を指定します。次のホップは、直接接続されているルーターのIPアドレスになります。
-              'ip route'コマンドの一般的な形式は「ip route [宛先ネットワーク] [サブネットマスク] [次のホップ]」です。
               デフォルトルートは、ルーティングテーブル内の他のルートが宛先と一致しない場合に使用される「最後の手段」のルートです。
             </p>
           </div>

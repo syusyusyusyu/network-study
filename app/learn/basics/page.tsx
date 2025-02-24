@@ -231,19 +231,19 @@ export default function NetworkBasicsPage() {
           <p className="mb-4">スタティックルーティングは、管理者が手動でルーティングテーブルを設定する方法です。</p>
           <div className="bg-blue-900 bg-opacity-50 p-4 rounded-lg mb-4">
             <h3 className="text-xl font-bold mb-2">問題 1</h3>
-            <p className="mb-2">スタティックルーティングの主な特徴は何ですか？</p>
+            <p className="mb-2">スタティックルーティングの利点は何ですか？</p>
             <RadioGroup value={routingAnswer1} onValueChange={setRoutingAnswer1}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="r1" />
-                <Label htmlFor="r1">自動的にルートを学習する</Label>
+                <Label htmlFor="r1">ネットワークの変更に自動的に対応できる</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="b" id="r2" />
-                <Label htmlFor="r2">管理者が手動でルートを設定する</Label>
+                <Label htmlFor="r2">設定が簡単で、小規模ネットワークに適している</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="r3" />
-                <Label htmlFor="r3">ネットワークトポロジの変更に自動的に対応する</Label>
+                <Label htmlFor="r3">大規模ネットワークでの拡張性が高い</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkRoutingAnswer1} className="mt-2">
@@ -253,19 +253,19 @@ export default function NetworkBasicsPage() {
           </div>
           <div className="bg-blue-900 bg-opacity-50 p-4 rounded-lg mb-4">
             <h3 className="text-xl font-bold mb-2">問題 2</h3>
-            <p className="mb-2">スタティックルートを設定するためのCisco IOSコマンドは次のうちどれですか？</p>
+            <p className="mb-2">スタティックルートを設定する際に必要な情報は何ですか？</p>
             <RadioGroup value={routingAnswer2} onValueChange={setRoutingAnswer2}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="r4" />
-                <Label htmlFor="r4">ip route</Label>
+                <Label htmlFor="r4">宛先ネットワーク、サブネットマスク、ネクストホップ</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="b" id="r5" />
-                <Label htmlFor="r5">router static</Label>
+                <Label htmlFor="r5">送信元IPアドレス、宛先IPアドレス、ポート番号</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="r6" />
-                <Label htmlFor="r6">set route</Label>
+                <Label htmlFor="c">MACアドレス、IPアドレス、デフォルトゲートウェイ</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkRoutingAnswer2} className="mt-2">
