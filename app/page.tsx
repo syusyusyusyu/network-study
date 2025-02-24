@@ -13,7 +13,7 @@ export default function Home() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-4">
         {[
-          { href: "/basics", icon: Book, title: "ネットワーク基礎知識", description: "基本を学ぼう" },
+          { href: "/learn/basics", icon: Book, title: "ネットワーク基礎知識", description: "基本を学ぼう" },
           { href: "/learn", icon: BookOpen, title: "学習モード", description: "スキルを磨こう" },
           { href: "/challenge", icon: Trophy, title: "チャレンジモード", description: "腕試しをしよう" },
           { href: "/dashboard", icon: BarChart, title: "ダッシュボード", description: "進捗を確認しよう" },
