@@ -16,7 +16,7 @@ const devices = [
 ]
 
 const connections = [
-  { from: 0, to: 1, label: "Se0/0/0" },
+  { from: 0, to: 1, label: "Gi0/0/0" },
   { from: 0, to: 2, label: "Gi0/0" },
   { from: 1, to: 3, label: "Gi0/0" },
 ]
