@@ -101,7 +101,7 @@ export default function VLANChallengePage() {
 
         <div className="mt-6 space-y-4">
           <p className="text-lg font-semibold">
-            2. コアスイッチとスイッチA間のポートをトランクポートとして設定するコマンドは何ですか？
+            2. L3スイッチとスイッチA間のポートをトランクポートとして設定するコマンドは何ですか？
           </p>
           <Input
             type="text"
