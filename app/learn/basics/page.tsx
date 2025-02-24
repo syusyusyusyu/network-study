@@ -455,12 +455,6 @@ export default function NetworkBasicsPage() {
 
         <Progress value={progress} className="mt-4 mb-2 h-3 md:h-4 rounded-full" />
         <p className="text-base md:text-lg text-gray-200 mb-4">進捗: {progress.toFixed(2)}% 🚀</p>
-
-        <div className="text-center">
-          <Button asChild className="bg-green-500 hover:bg-green-600 text-white">
-            <Link href="/">トップメニューに戻る</Link>
-          </Button>
-        </div>
       </div>
     </Layout>
   )
