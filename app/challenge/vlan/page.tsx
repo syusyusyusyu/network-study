@@ -30,7 +30,7 @@ const connections = [
 
 export default function VLANChallengePage() {
   const [vlanId, setVlanId] = useState("")
-  const [trunkPorts, setTrunkPorts] = useState("")
+  const [trunkConfig, setTrunkConfig] = useState("")
   const [accessPort, setAccessPort] = useState("")
   const [feedback1, setFeedback1] = useState("")
   const [feedback2, setFeedback2] = useState("")
@@ -47,12 +47,13 @@ export default function VLANChallengePage() {
     }
   }
 
-  const checkTrunkPorts = () => {
-    if (trunkPorts.toLowerCase() === "1,2" || trunkPorts.toLowerCase() === "2,1") {
+  const checkTrunkConfig = () => {
+    const correctConfig = "switchport mode trunk"
+    if (trunkConfig.toLowerCase().includes(correctConfig)) {
       setFeedback2("正解です！素晴らしい！ 🎉")
       setProgress((prev) => Math.min(prev + 33, 100))
     } else {
-      setFeedback2("もう一度考えてみよう。コアスイッチと他のスイッチを接続しているポートを確認してください。 💪")
+      setFeedback2("もう一度考えてみよう。トランクポートを設定するコマンドを思い出してください。 💪")
     }
   }
 
@@ -100,16 +101,16 @@ export default function VLANChallengePage() {
 
         <div className="mt-6 space-y-4">
           <p className="text-lg font-semibold">
-            2. コアスイッチ上のトランクポートの番号はどれですか？（カンマ区切りで入力）
+            2. コアスイッチとスイッチA間のポートをトランクポートとして設定するコマンドは何ですか？
           </p>
           <Input
             type="text"
-            placeholder="ポート番号を入力（例: 1,2）"
-            value={trunkPorts}
-            onChange={(e) => setTrunkPorts(e.target.value)}
+            placeholder="コマンドを入力"
+            value={trunkConfig}
+            onChange={(e) => setTrunkConfig(e.target.value)}
             className="flex-1 bg-white text-black placeholder-gray-500"
           />
-          <Button onClick={checkTrunkPorts} className="bg-green-500 hover:bg-green-600 text-white">
+          <Button onClick={checkTrunkConfig} className="bg-green-500 hover:bg-green-600 text-white">
             チェック
           </Button>
         </div>
@@ -157,10 +158,13 @@ export default function VLANChallengePage() {
         {showHint && (
           <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
             <p className="text-base md:text-lg text-white">
-              <strong>ヒント:</strong> VLANは論理的にネットワークを分割する技術です。
-              各デバイスは特定のVLANに属しています。 トランクポートは複数のVLANのトラフィックを伝送するために使用され、
-              通常スイッチ間の接続に使用されます。
-              アクセスポートは、エンドデバイス（PCやサーバーなど）を特定のVLANに接続するために使用されます。
+              <strong>ヒント:</strong>
+              <br />
+              1. 図中のサーバーのラベルを確認してください。
+              <br />
+              2. トランクポートの設定には、特定のコマンドを使用します。通常は "switchport mode ..." の形式です。
+              <br />
+              3. アクセスポートは、エンドデバイス（PCやサーバーなど）を特定のVLANに接続するために使用されます。
             </p>
           </div>
         )}
