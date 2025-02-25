@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress"
 
 export default function DashboardPage() {
   const [progress, setProgress] = useState({
+    basic: 0,
     ipAddress: 0,
     routing: 0,
     vlan: 0,
@@ -17,6 +18,7 @@ export default function DashboardPage() {
     // ここで、ローカルストレージまたはバックエンドAPIから進捗データを取得します
     // この例では、ランダムな進捗を生成しています
     setProgress({
+      basic: Math.floor(Math.random() * 101),
       ipAddress: Math.floor(Math.random() * 101),
       routing: Math.floor(Math.random() * 101),
       vlan: Math.floor(Math.random() * 101),
@@ -36,6 +38,11 @@ export default function DashboardPage() {
 
         <h3 className="text-xl font-bold mb-2">トピック別進捗</h3>
         <div className="space-y-4">
+        <div>
+            <p>ネットワーク基礎</p>
+            <Progress value={progress.ipAddress} className="mb-2" />
+            <p className="text-sm">{progress.ipAddress}% 完了</p>
+          </div>
           <div>
             <p>IPアドレス</p>
             <Progress value={progress.ipAddress} className="mb-2" />
