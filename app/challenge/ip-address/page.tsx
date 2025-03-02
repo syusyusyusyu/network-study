@@ -42,75 +42,82 @@ export default function IPAddressChallengePage() {
   })
 
   // ページロード時に保存されている進捗データを取得
-  useEffect(() => {
-    const fetchSavedProgress = async () => {
-      try {
-        // IndexedDBから進捗データを取得
-        const progressData = await getProgress();
-        
-        // チャレンジは50%〜100%の部分を担当
-        const totalProgress = progressData.ipAddress || 0;
-        
-        // チャレンジ部分の進捗を計算（50%より大きい部分）
-        const challengeProgress = Math.max(totalProgress - 50, 0);
-        
-        // ローカルの進捗状態を更新
-        setProgress(challengeProgress);
-        
-        // 正解状態を更新（進捗に基づいて）
-        if (challengeProgress > 0) {
-          const questionValue = 100 / 3; // 各問題は約16.67%の価値
-          setCorrectAnswers({
-            pc2IP: challengeProgress >= questionValue,
-            subnetMask: challengeProgress >= questionValue * 2,
-            defaultGateway: challengeProgress >= questionValue * 3,
-          });
-        }
-        
-        console.log(`IPチャレンジページ: 進捗データ読み込み完了 (${challengeProgress}%)`);
-      } catch (error) {
-        console.error('進捗データの取得に失敗しました:', error);
-      }
-    };
-    
-    fetchSavedProgress();
-  }, []);
-
-  // 正解状態が変わったときにIndexedDBに保存する
-  useEffect(() => {
-    const saveCurrentProgress = async () => {
-      // 初期レンダリング時は実行しない
-      if (Object.values(correctAnswers).every(value => value === false)) return;
+useEffect(() => {
+  const fetchSavedProgress = async () => {
+    try {
+      // IndexedDBから進捗データを取得
+      const progressData = await getProgress();
       
-      try {
-        // チャレンジページの進捗を計算（50%を上限とする）
-        const correctCount = Object.values(correctAnswers).filter(Boolean).length;
-        const totalCount = Object.keys(correctAnswers).length;
-        const challengeProgress = Math.round((correctCount / totalCount) * 50);
-        
-        // ローカルの進捗状態を更新
-        setProgress(challengeProgress);
-        
-        // 現在の進捗データを取得
-        const progressData = await getProgress();
-        
-        // 学習部分の進捗（0〜50%）を保持
-        const learnProgress = Math.min(progressData.ipAddress || 0, 50);
-        
-        // 学習ページとチャレンジページの進捗を合計
-        const newTotalProgress = Math.min(learnProgress + challengeProgress, 100);
-        
-        // IndexedDBに保存
-        await saveProgress('ipAddress', newTotalProgress);
-        
-        console.log(`IPチャレンジページ: 進捗更新 (学習=${learnProgress}%, チャレンジ=${challengeProgress}%, 合計=${newTotalProgress}%)`);
-      } catch (error) {
-        console.error('進捗の保存に失敗しました:', error);
+      // 全体の進捗を取得
+      const totalProgress = progressData.ipAddress || 0;
+      
+      // IPアドレスには全部で6問ある (学習ページ3問 + チャレンジページ3問)
+      // チャレンジページの3問は全体の後半50%を占める
+      
+      // チャレンジページ内での進捗を計算 (100%満点)
+      // 全体の50%をチャレンジページが担当するので、
+      // チャレンジページ内での進捗 = min(100, (全体の進捗 - 50) * 2)
+      const challengeLocalProgress = Math.min(100, Math.max(0, (totalProgress - 50) * 2));
+      setProgress(challengeLocalProgress);
+      
+      // 正解状態を更新（進捗に基づいて）
+      if (challengeLocalProgress > 0) {
+        // チャレンジページ内での各問題の価値は33.33%
+        const questionLocalValue = 100 / 3;
+        setCorrectAnswers({
+          pc2IP: challengeLocalProgress >= questionLocalValue,
+          subnetMask: challengeLocalProgress >= questionLocalValue * 2,
+          defaultGateway: challengeLocalProgress >= questionLocalValue * 3,
+        });
       }
-    };
+      
+      console.log(`IPチャレンジページ: 進捗データ読み込み完了 (ローカル進捗=${challengeLocalProgress}%, 全体進捗=${totalProgress}%)`);
+    } catch (error) {
+      console.error('進捗データの取得に失敗しました:', error);
+    }
+  };
+  
+  fetchSavedProgress();
+}, []);
+
+// 正解状態が変わったときにIndexedDBに保存する
+useEffect(() => {
+  const saveCurrentProgress = async () => {
+    // 初期レンダリング時は実行しない
+    if (Object.values(correctAnswers).every(value => value === false)) return;
     
-    saveCurrentProgress();
-  }, [correctAnswers]);
+    try {
+      // チャレンジページでの正解数を計算
+      const correctCount = Object.values(correctAnswers).filter(Boolean).length;
+      const totalCountInChallenge = Object.keys(correctAnswers).length;
+      
+      // ローカルの進捗状態を更新（チャレンジページ内での進捗 - 100%満点）
+      const localProgress = Math.round((correctCount / totalCountInChallenge) * 100);
+      setProgress(localProgress);
+      
+      // 現在の進捗データを取得
+      const progressData = await getProgress();
+      
+      // 学習ページの進捗を保持 (0-50%)
+      const learnPartProgress = Math.min(progressData.ipAddress || 0, 50);
+      
+      // チャレンジページの貢献分を計算 (0-50%)
+      const challengePartProgress = Math.round((correctCount / totalCountInChallenge) * 50);
+      
+      // 合計進捗を計算
+      const newTotalProgress = Math.min(learnPartProgress + challengePartProgress, 100);
+      
+      // IndexedDBに保存
+      await saveProgress('ipAddress', newTotalProgress);
+      
+      console.log(`IPチャレンジページ: 進捗更新 (ローカル進捗=${localProgress}%, 学習=${learnPartProgress}%, チャレンジ=${challengePartProgress}%, 合計=${newTotalProgress}%)`);
+    } catch (error) {
+      console.error('進捗の保存に失敗しました:', error);
+    }
+  };
+  
+  saveCurrentProgress();
+}, [correctAnswers]);
 
   const checkPC2IP = () => {
     if (pc2IP === "192.168.1.11") {
