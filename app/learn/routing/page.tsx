@@ -116,23 +116,11 @@ export default function RoutingLearnPage() {
   }
 
   const checkRouteCommand = () => {
-    // 正解のバリエーションを複数許容する
-    const correctAnswers = [
-      "ip route 192.168.2.0 255.255.255.0 192.168.2.1",
-      "ip route 192.168.2.0/24 192.168.2.1",
-      "route 192.168.2.0 255.255.255.0 192.168.2.1"
-    ];
-    
-    const userAnswer = routeCommand.trim().toLowerCase();
-    
-    if (correctAnswers.some(answer => userAnswer.includes(answer) || answer.includes(userAnswer))) {
-      setFeedback3("正解です！完璧なコマンドです！ 🎉")
+    if (routeCommand === "a") {
+      setFeedback3("正解です！素晴らしい！サーバーのネットワークへの正しいルート設定です！ 🎉")
       setCorrectAnswers(prev => ({ ...prev, routeCommand: true }));
-    } else if (userAnswer.includes("192.168.2.0") && userAnswer.includes("192.168.2.1")) {
-      setFeedback3("惜しいです！必要な情報は含まれていますが、コマンド形式を確認してください。 🤔")
-      setCorrectAnswers(prev => ({ ...prev, routeCommand: false }));
     } else {
-      setFeedback3("もう一度考えてみよう。コマンドには宛先ネットワーク(192.168.2.0)とネクストホップ(192.168.2.1)が必要です。 💪")
+      setFeedback3("もう一度考えてみよう。図を見て、どのネットワークに向けてルートを設定するべきかを確認しましょう。 💪")
       setCorrectAnswers(prev => ({ ...prev, routeCommand: false }));
     }
   }
@@ -209,20 +197,26 @@ export default function RoutingLearnPage() {
 
           <div className="mt-6 space-y-4">
             <p className="text-lg font-semibold">
-              3. ルータAからサーバ（192.168.2.10）のネットワークへのルートを設定するコマンドを選んでください：
+              3. PC1からサーバーに通信するために必要なルート設定はどれですか？
             </p>
             <RadioGroup value={routeCommand} onValueChange={setRouteCommand}>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="ip route 192.168.2.0 255.255.255.0 192.168.2.1" id="rc1" />
-                <Label htmlFor="rc1">ip route 192.168.2.0 255.255.255.0 192.168.2.1</Label>
+                <RadioGroupItem value="a" id="rc1" />
+                <Label htmlFor="rc1">
+                  <span className="font-semibold">ルータAで設定</span>：サーバーのネットワーク(192.168.2.0)へのルート
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="ip route 192.168.1.0 255.255.255.0 192.168.1.1" id="rc2" />
-                <Label htmlFor="rc2">ip route 192.168.1.0 255.255.255.0 192.168.1.1</Label>
+                <RadioGroupItem value="b" id="rc2" />
+                <Label htmlFor="rc2">
+                  <span className="font-semibold">ルータBで設定</span>：PC1のネットワーク(192.168.1.0)へのルート
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="ip route 192.168.2.10 255.255.255.0 192.168.2.1" id="rc3" />
-                <Label htmlFor="rc3">ip route 192.168.2.10 255.255.255.0 192.168.2.1</Label>
+                <RadioGroupItem value="c" id="rc3" />
+                <Label htmlFor="rc3">
+                  <span className="font-semibold">ルータAで設定</span>：サーバー自身(192.168.2.10)へのルート
+                </Label>
               </div>
             </RadioGroup>
             <Button onClick={checkRouteCommand} className="bg-green-500 hover:bg-green-600 text-white">
@@ -248,9 +242,9 @@ export default function RoutingLearnPage() {
               <p className="text-base md:text-lg text-white">
                 <strong>ヒント:</strong><br/>
                 1. ルーティングの主な目的は、パケットがある場所から別の場所へ移動する際の道筋を決めることです。<br/>
-                2. スタティックルーティングは手動で設定する方法で、ダイナミックルーティングは自動で経路を学習する方法です。<br/>
-                3. ルーティングコマンドでは、宛先ネットワーク（サーバーが所属するネットワーク192.168.2.0）、
-                サブネットマスク（255.255.255.0）、そして次のルーター（ネクストホップ192.168.2.1）を指定します。
+                2. スタティックルーティングは管理者が手動で設定する方法で、設定が簡単なのが特徴です。<br/>
+                3. ルートを設定する際は、「どのネットワークに向けて」「どのルーターを経由するか」を考えましょう。
+                図を見ると、PC1はルータAに繋がっており、サーバーはルータBに繋がっていることが分かります。
               </p>
             </div>
           )}
