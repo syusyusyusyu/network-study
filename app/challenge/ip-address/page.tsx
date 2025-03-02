@@ -59,7 +59,7 @@ export default function IPAddressChallengePage() {
         
         // 正解状態を更新（進捗に基づいて）
         if (challengeProgress > 0) {
-          const questionValue = 50 / 3; // 各問題は約16.67%の価値
+          const questionValue = 100 / 3; // 各問題は約16.67%の価値
           setCorrectAnswers({
             pc2IP: challengeProgress >= questionValue,
             subnetMask: challengeProgress >= questionValue * 2,

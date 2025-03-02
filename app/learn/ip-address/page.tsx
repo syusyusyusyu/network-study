@@ -56,7 +56,7 @@ export default function IPAddressLearnPage() {
         // 正解状態を更新（進捗に基づいて）
         if (learnProgress > 0) {
           // 各問題の価値を計算
-          const questionValue = 50 / 3; // 各問題は約16.67%の価値
+          const questionValue = 100 / 3; // 各問題は約16.67%の価値
           
           // 進捗から正解状態を推定
           setCorrectAnswers({
