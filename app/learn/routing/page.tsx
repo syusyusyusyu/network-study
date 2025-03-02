@@ -116,11 +116,23 @@ export default function RoutingLearnPage() {
   }
 
   const checkRouteCommand = () => {
-    if (routeCommand.trim().toLowerCase() === "ip route 192.168.2.0 255.255.255.0 192.168.2.1") {
+    // 正解のバリエーションを複数許容する
+    const correctAnswers = [
+      "ip route 192.168.2.0 255.255.255.0 192.168.2.1",
+      "ip route 192.168.2.0/24 192.168.2.1",
+      "route 192.168.2.0 255.255.255.0 192.168.2.1"
+    ];
+    
+    const userAnswer = routeCommand.trim().toLowerCase();
+    
+    if (correctAnswers.some(answer => userAnswer.includes(answer) || answer.includes(userAnswer))) {
       setFeedback3("正解です！完璧なコマンドです！ 🎉")
       setCorrectAnswers(prev => ({ ...prev, routeCommand: true }));
+    } else if (userAnswer.includes("192.168.2.0") && userAnswer.includes("192.168.2.1")) {
+      setFeedback3("惜しいです！必要な情報は含まれていますが、コマンド形式を確認してください。 🤔")
+      setCorrectAnswers(prev => ({ ...prev, routeCommand: false }));
     } else {
-      setFeedback3("惜しい！もう一度確認してみよう。コマンドの形式と必要な情報を見直してください。 💪")
+      setFeedback3("もう一度考えてみよう。コマンドには宛先ネットワーク(192.168.2.0)とネクストホップ(192.168.2.1)が必要です。 💪")
       setCorrectAnswers(prev => ({ ...prev, routeCommand: false }));
     }
   }
@@ -136,7 +148,9 @@ export default function RoutingLearnPage() {
 
         <div className="mt-6 space-y-4">
           <p className="text-lg">
-            ルーティングは、ネットワーク間でデータパケットを転送するための経路を決定するプロセスです。ルーターはこの機能を担い、異なるネットワーク間の通信を可能にします。
+            ルーティングは、ネットワーク間でデータパケットを転送するための経路を決定するプロセスです。
+            上の図では、ルータAとルータBが接続されており、それぞれ異なるネットワークを持っています。
+            PC1からサーバにデータを送るには、ルーティングが必要です。
           </p>
 
           <div className="mt-6 space-y-4">
@@ -144,7 +158,7 @@ export default function RoutingLearnPage() {
             <RadioGroup value={routeDefinition} onValueChange={setRouteDefinition}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="r1" />
-                <Label htmlFor="r1">IPアドレスを割り当てるプロセス</Label>
+                <Label htmlFor="r1">デバイスにIPアドレスを割り当てるプロセス</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="b" id="r2" />
@@ -152,7 +166,7 @@ export default function RoutingLearnPage() {
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="r3" />
-                <Label htmlFor="r3">デバイス間の物理的接続を確立するプロセス</Label>
+                <Label htmlFor="r3">デバイス間の物理的な配線を行うプロセス</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkRouteDefinition} className="bg-green-500 hover:bg-green-600 text-white">
@@ -171,15 +185,15 @@ export default function RoutingLearnPage() {
             <RadioGroup value={routeBenefit} onValueChange={setRouteBenefit}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="rb1" />
-                <Label htmlFor="rb1">設定が簡単でトラフィックフローが予測可能</Label>
+                <Label htmlFor="rb1">設定が簡単でトラフィックの流れが予測しやすい</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="b" id="rb2" />
-                <Label htmlFor="rb2">ネットワークトポロジの変更に自動的に適応する</Label>
+                <Label htmlFor="rb2">ネットワーク構成が変わっても自動的に経路を更新する</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="rb3" />
-                <Label htmlFor="rb3">複雑なアルゴリズムでより効率的な経路を見つける</Label>
+                <Label htmlFor="rb3">複雑なアルゴリズムで常に最短経路を見つける</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkRouteBenefit} className="bg-green-500 hover:bg-green-600 text-white">
@@ -195,15 +209,22 @@ export default function RoutingLearnPage() {
 
           <div className="mt-6 space-y-4">
             <p className="text-lg font-semibold">
-              3. ルータAからサーバーのネットワークへのスタティックルートを設定するCiscoコマンドを入力してください：
+              3. ルータAからサーバ（192.168.2.10）のネットワークへのルートを設定するコマンドを選んでください：
             </p>
-            <Input
-              type="text"
-              placeholder="例: ip route [ネットワークアドレス] [サブネットマスク] [ネクストホップ]"
-              value={routeCommand}
-              onChange={(e) => setRouteCommand(e.target.value)}
-              className="flex-1 bg-white text-black placeholder-gray-500"
-            />
+            <RadioGroup value={routeCommand} onValueChange={setRouteCommand}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="ip route 192.168.2.0 255.255.255.0 192.168.2.1" id="rc1" />
+                <Label htmlFor="rc1">ip route 192.168.2.0 255.255.255.0 192.168.2.1</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="ip route 192.168.1.0 255.255.255.0 192.168.1.1" id="rc2" />
+                <Label htmlFor="rc2">ip route 192.168.1.0 255.255.255.0 192.168.1.1</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="ip route 192.168.2.10 255.255.255.0 192.168.2.1" id="rc3" />
+                <Label htmlFor="rc3">ip route 192.168.2.10 255.255.255.0 192.168.2.1</Label>
+              </div>
+            </RadioGroup>
             <Button onClick={checkRouteCommand} className="bg-green-500 hover:bg-green-600 text-white">
               チェック
             </Button>
@@ -225,11 +246,11 @@ export default function RoutingLearnPage() {
           {showHint && (
             <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
               <p className="text-base md:text-lg text-white">
-                <strong>ヒント:</strong> ルーティングは、データパケットが送信元から宛先に到達するための最適な経路を決定するプロセスです。
-                スタティックルートは管理者によって手動で設定され、ネットワークトラフィックの予測可能性を高めますが、
-                ネットワークの変化に自動的に適応することはできません。
-                スタティックルートを設定するCiscoコマンドの形式は「ip route [宛先ネットワーク] [サブネットマスク] [ネクストホップ]」です。
-                この例では、サーバーが属するネットワークは192.168.2.0/24で、ネクストホップはルータBのIPアドレスになります。
+                <strong>ヒント:</strong><br/>
+                1. ルーティングの主な目的は、パケットがある場所から別の場所へ移動する際の道筋を決めることです。<br/>
+                2. スタティックルーティングは手動で設定する方法で、ダイナミックルーティングは自動で経路を学習する方法です。<br/>
+                3. ルーティングコマンドでは、宛先ネットワーク（サーバーが所属するネットワーク192.168.2.0）、
+                サブネットマスク（255.255.255.0）、そして次のルーター（ネクストホップ192.168.2.1）を指定します。
               </p>
             </div>
           )}

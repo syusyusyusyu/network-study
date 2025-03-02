@@ -97,20 +97,20 @@ export default function VLANLearnPage() {
 
   const checkVlanDefinition = () => {
     if (vlanDefinition === "b") {
-      setFeedback1("正解です！素晴らしい！VLANは物理的な制約なく、論理的にネットワークを分割します。 🎉")
+      setFeedback1("正解です！素晴らしい！VLANは物理的な配線を変えずに、論理的にネットワークを分けることができる便利な技術です 🎉")
       setCorrectAnswers(prev => ({ ...prev, vlanDefinition: true }));
     } else {
-      setFeedback1("もう一度考えてみよう。VLANの基本的な定義を思い出してください。 💪")
+      setFeedback1("もう一度考えてみよう。VLANは「仮想的に」ネットワークを分ける技術です 💪")
       setCorrectAnswers(prev => ({ ...prev, vlanDefinition: false }));
     }
   }
 
   const checkVlanBenefit = () => {
     if (vlanBenefit === "a") {
-      setFeedback2("正解です！素晴らしい！VLANはブロードキャストドメインを制限し、セキュリティとパフォーマンスを向上します。 🎉")
+      setFeedback2("正解です！素晴らしい！VLANを使うと、不要な通信を減らして安全性を高め、ネットワークの効率も良くなります 🎉")
       setCorrectAnswers(prev => ({ ...prev, vlanBenefit: true }));
     } else {
-      setFeedback2("もう一度考えてみよう。VLANが提供する主なメリットを考えましょう。 💪")
+      setFeedback2("もう一度考えてみよう。VLANがあると、どんな良いことがあるでしょうか？ 💪")
       setCorrectAnswers(prev => ({ ...prev, vlanBenefit: false }));
     }
   }
@@ -138,23 +138,24 @@ export default function VLANLearnPage() {
         <div className="mt-6 space-y-4">
           <p className="text-lg">
             VLANは「Virtual Local Area Network（仮想ローカルエリアネットワーク）」の略で、
-            物理的な接続に関わらず、論理的にネットワークを分割する技術です。
+            物理的な配線を変えなくても、コンピューターをグループに分けられる便利な技術です。
+            上の図では、営業部、技術部、サーバーがそれぞれ別々のVLANに分けられています。
           </p>
 
           <div className="mt-6 space-y-4">
-            <p className="text-lg font-semibold">1. VLANの正しい説明は次のうちどれですか？</p>
+            <p className="text-lg font-semibold">1. VLANってどんな技術？ 一番近いものを選んでください</p>
             <RadioGroup value={vlanDefinition} onValueChange={setVlanDefinition}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="r1" />
-                <Label htmlFor="r1">異なるネットワーク間でのルーティングを提供する技術</Label>
+                <Label htmlFor="r1">離れた場所のネットワーク同士をつなぐ技術</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="b" id="r2" />
-                <Label htmlFor="r2">単一の物理ネットワークを複数の論理ネットワークに分割する技術</Label>
+                <Label htmlFor="r2">一つのネットワークを、配線を変えずに複数のグループに分ける技術</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="r3" />
-                <Label htmlFor="r3">複数の物理ネットワークを単一の論理ネットワークに統合する技術</Label>
+                <Label htmlFor="r3">複数のネットワークを一つにまとめる技術</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkVlanDefinition} className="bg-green-500 hover:bg-green-600 text-white">
@@ -169,19 +170,19 @@ export default function VLANLearnPage() {
           )}
 
           <div className="mt-6 space-y-4">
-            <p className="text-lg font-semibold">2. VLANを使用する主な利点は何ですか？</p>
+            <p className="text-lg font-semibold">2. VLANを使うと、どんな良いことがある？</p>
             <RadioGroup value={vlanBenefit} onValueChange={setVlanBenefit}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="rb1" />
-                <Label htmlFor="rb1">ブロードキャストトラフィックの制限とセキュリティの向上</Label>
+                <Label htmlFor="rb1">不必要な通信を減らせて、セキュリティが向上する</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="b" id="rb2" />
-                <Label htmlFor="rb2">ネットワークの物理的な距離の拡張</Label>
+                <Label htmlFor="rb2">ネットワークを物理的に広げやすくなる</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="rb3" />
-                <Label htmlFor="rb3">インターネット接続速度の向上</Label>
+                <Label htmlFor="rb3">インターネットの接続が速くなる</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkVlanBenefit} className="bg-green-500 hover:bg-green-600 text-white">
@@ -197,11 +198,11 @@ export default function VLANLearnPage() {
 
           <div className="mt-6 space-y-4">
             <p className="text-lg font-semibold">
-              3. CiscoスイッチでVLAN 50を作成するための基本コマンドを入力してください：
+              3. CiscoスイッチでVLAN 50を作るコマンドを入力してください：
             </p>
             <Input
               type="text"
-              placeholder="コマンドを入力 (例: vlan [ID])"
+              placeholder="コマンドを入力 (例: vlan [番号])"
               value={vlanCommand}
               onChange={(e) => setVlanCommand(e.target.value)}
               className="flex-1 bg-white text-black placeholder-gray-500"
@@ -227,9 +228,10 @@ export default function VLANLearnPage() {
           {showHint && (
             <div className="mt-4 bg-blue-100 bg-opacity-20 p-4 rounded-lg">
               <p className="text-base md:text-lg text-white">
-                <strong>ヒント:</strong> VLANは物理的な構成に関係なく、ネットワークを論理的に分割するための技術です。
-                これにより、セキュリティの向上、ブロードキャストドメインの制限、効率的なネットワーク管理が可能になります。
-                Ciscoスイッチでは、グローバルコンフィギュレーションモードで「vlan」コマンドを使用してVLANを作成します。
+                <strong>ヒント:</strong> VLANを使うと、同じスイッチに接続していても、違うVLANのコンピューター同士は
+                直接通信できません。これにより部署ごとにネットワークを分けたり、セキュリティを高めたりできます。
+                また、放送型の通信（ブロードキャスト）も同じVLAN内だけに限定されるため、
+                ネットワークの無駄な通信を減らせます。Ciscoスイッチでは、単純に「vlan」の後に番号を入れるだけでVLANを作成できます。
               </p>
             </div>
           )}

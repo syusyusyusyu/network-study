@@ -137,7 +137,7 @@ export default function WirelessLearnPage() {
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="r3" />
-                <Label htmlFor="r3">光ファイバーを使ったワイヤレス接続技術</Label>
+                <Label htmlFor="r3">光ファイバを使ったワイヤレス接続技術</Label>
               </div>
             </RadioGroup>
             <Button onClick={checkWifiDefinition} className="bg-green-500 hover:bg-green-600 text-white">
