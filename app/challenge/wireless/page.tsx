@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Layout } from "@/components/Layout"
+import { saveProgress, getProgress } from "../../utils/db"
 
 export default function WirelessChallengePage() {
   const [ssid, setSSID] = useState("")
@@ -21,6 +22,82 @@ export default function WirelessChallengePage() {
   const [feedback3, setFeedback3] = useState("")
   const [progress, setProgress] = useState(0)
   const [showHint, setShowHint] = useState(false)
+  
+  // 正解状態を管理
+  const [correctAnswers, setCorrectAnswers] = useState({
+    wirelessSetup: false,
+    frequency: false,
+    beaconInterval: false
+  })
+
+  // ページロード時に保存されている進捗データを取得
+  useEffect(() => {
+    const fetchSavedProgress = async () => {
+      try {
+        // IndexedDBから進捗データを取得
+        const progressData = await getProgress();
+        
+        // 全体の進捗を取得
+        const totalProgress = progressData.wireless || 0;
+        
+        // チャレンジページ内での進捗を計算 (100%満点)
+        // チャレンジページは全体の後半50%を担当するので
+        const challengeLocalProgress = Math.min(100, Math.max(0, (totalProgress - 50) * 2));
+        setProgress(challengeLocalProgress);
+        
+        // 正解状態を更新
+        if (challengeLocalProgress > 0) {
+          const questionLocalValue = 100 / 3; // 各問題が33.33%ずつ
+          setCorrectAnswers({
+            wirelessSetup: challengeLocalProgress >= questionLocalValue,
+            frequency: challengeLocalProgress >= questionLocalValue * 2,
+            beaconInterval: challengeLocalProgress >= questionLocalValue * 3,
+          });
+        }
+      } catch (error) {
+        console.error('進捗データの取得に失敗しました:', error);
+      }
+    };
+    
+    fetchSavedProgress();
+  }, []);
+
+  // 正解状態が変わったときに進捗を更新
+  useEffect(() => {
+    const updateProgress = async () => {
+      try {
+        // チャレンジページでの正解数を計算
+        const correctCount = Object.values(correctAnswers).filter(Boolean).length;
+        const totalCountInChallenge = Object.keys(correctAnswers).length;
+        
+        // ローカルの進捗状態を更新（チャレンジページ内での進捗 - 100%満点）
+        const localProgress = Math.round((correctCount / totalCountInChallenge) * 100);
+        setProgress(localProgress);
+        
+        // 現在の進捗データを取得
+        const progressData = await getProgress();
+        
+        // 学習ページの進捗を保持 (0-50%)
+        const learnPartProgress = Math.min(progressData.wireless || 0, 50);
+        
+        // チャレンジページの貢献分を計算 (0-50%)
+        const challengePartProgress = Math.round((correctCount / totalCountInChallenge) * 50);
+        
+        // 合計進捗を計算
+        const newTotalProgress = Math.min(learnPartProgress + challengePartProgress, 100);
+        
+        // IndexedDBに保存
+        await saveProgress('wireless', newTotalProgress);
+      } catch (error) {
+        console.error('進捗の保存に失敗しました:', error);
+      }
+    };
+    
+    // 初期レンダリング時に実行しないためのガード条件
+    if (!Object.values(correctAnswers).every(value => value === false)) {
+      updateProgress();
+    }
+  }, [correctAnswers]);
 
   const checkWireless = () => {
     const channelValue = Number.parseInt(channel)
@@ -33,8 +110,8 @@ export default function WirelessChallengePage() {
       channelValue <= 14 &&
       security !== ""
     ) {
-      setFeedback("正しい無線LAN設定です！")
-      setProgress(33)
+      setFeedback("正しい無線LAN設定です！ 🎉")
+      setCorrectAnswers(prev => ({ ...prev, wirelessSetup: true }));
     } else {
       const errorMessage = []
       if (ssid.length === 0) errorMessage.push("SSIDを入力してください")
@@ -44,25 +121,27 @@ export default function WirelessChallengePage() {
       if (security === "") errorMessage.push("セキュリティタイプを選択してください")
 
       setFeedback(errorMessage.join(", "))
-      setProgress(16)
+      setCorrectAnswers(prev => ({ ...prev, wirelessSetup: false }));
     }
   }
 
   const checkFrequency = () => {
     if (frequency === "5") {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => prev + 33)
+      setCorrectAnswers(prev => ({ ...prev, frequency: true }));
     } else {
       setFeedback2("もう一度考えてみよう。より高速な通信が可能な周波数帯はどちらでしょうか？ 💪")
+      setCorrectAnswers(prev => ({ ...prev, frequency: false }));
     }
   }
 
   const checkBeaconInterval = () => {
     if (beaconInterval === "b") {
       setFeedback3("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => prev + 34)
+      setCorrectAnswers(prev => ({ ...prev, beaconInterval: true }));
     } else {
       setFeedback3("もう一度考えてみよう。一般的なビーコン間隔はどれくらいでしょうか？ 💪")
+      setCorrectAnswers(prev => ({ ...prev, beaconInterval: false }));
     }
   }
 
@@ -191,4 +270,3 @@ export default function WirelessChallengePage() {
     </Layout>
   )
 }
-

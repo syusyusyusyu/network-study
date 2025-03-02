@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
@@ -8,6 +8,7 @@ import { NetworkDiagram } from "@/components/NetworkDiagram"
 import { Layout } from "@/components/Layout"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { saveProgress, getProgress } from "../../utils/db"
 
 const devices = [
   { type: "switch" as const, x: 300, y: 50, label: "L3スイッチ" },
@@ -38,12 +39,89 @@ export default function VLANChallengePage() {
   const [progress, setProgress] = useState(0)
   const [showHint, setShowHint] = useState(false)
 
+  // 正解状態を管理
+  const [correctAnswers, setCorrectAnswers] = useState({
+    vlanId: false,
+    trunkConfig: false,
+    accessPort: false
+  })
+
+  // ページロード時に保存されている進捗データを取得
+  useEffect(() => {
+    const fetchSavedProgress = async () => {
+      try {
+        // IndexedDBから進捗データを取得
+        const progressData = await getProgress();
+        
+        // 全体の進捗を取得
+        const totalProgress = progressData.vlan || 0;
+        
+        // チャレンジページ内での進捗を計算 (100%満点)
+        // チャレンジページは全体の後半50%を担当するので
+        const challengeLocalProgress = Math.min(100, Math.max(0, (totalProgress - 50) * 2));
+        setProgress(challengeLocalProgress);
+        
+        // 正解状態を更新
+        if (challengeLocalProgress > 0) {
+          const questionLocalValue = 100 / 3; // 各問題が33.33%ずつ
+          setCorrectAnswers({
+            vlanId: challengeLocalProgress >= questionLocalValue,
+            trunkConfig: challengeLocalProgress >= questionLocalValue * 2,
+            accessPort: challengeLocalProgress >= questionLocalValue * 3,
+          });
+        }
+      } catch (error) {
+        console.error('進捗データの取得に失敗しました:', error);
+      }
+    };
+    
+    fetchSavedProgress();
+  }, []);
+
+  // 正解状態が変わったときに進捗を更新
+  useEffect(() => {
+    const updateProgress = async () => {
+      try {
+        // チャレンジページでの正解数を計算
+        const correctCount = Object.values(correctAnswers).filter(Boolean).length;
+        const totalCountInChallenge = Object.keys(correctAnswers).length;
+        
+        // ローカルの進捗状態を更新（チャレンジページ内での進捗 - 100%満点）
+        const localProgress = Math.round((correctCount / totalCountInChallenge) * 100);
+        setProgress(localProgress);
+        
+        // 現在の進捗データを取得
+        const progressData = await getProgress();
+        
+        // 学習ページの進捗を保持 (0-50%)
+        const learnPartProgress = Math.min(progressData.vlan || 0, 50);
+        
+        // チャレンジページの貢献分を計算 (0-50%)
+        const challengePartProgress = Math.round((correctCount / totalCountInChallenge) * 50);
+        
+        // 合計進捗を計算
+        const newTotalProgress = Math.min(learnPartProgress + challengePartProgress, 100);
+        
+        // IndexedDBに保存
+        await saveProgress('vlan', newTotalProgress);
+      } catch (error) {
+        console.error('進捗の保存に失敗しました:', error);
+      }
+    };
+    
+    // 初期レンダリング時に実行しないためのガード条件
+    if (!Object.values(correctAnswers).every(value => value === false)) {
+      updateProgress();
+    }
+  }, [correctAnswers]);
+
   const checkVlanId = () => {
     if (vlanId === "40") {
       setFeedback1("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 33, 100))
+      setCorrectAnswers(prev => ({ ...prev, vlanId: true }));
     } else {
       setFeedback1("もう一度考えてみよう。サーバーが属するVLAN IDを確認してください。 💪")
+      setCorrectAnswers(prev => ({ ...prev, vlanId: false }));
     }
   }
 
@@ -51,18 +129,20 @@ export default function VLANChallengePage() {
     const correctConfig = "switchport mode trunk"
     if (trunkConfig.toLowerCase().includes(correctConfig)) {
       setFeedback2("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 33, 100))
+      setCorrectAnswers(prev => ({ ...prev, trunkConfig: true }));
     } else {
       setFeedback2("もう一度考えてみよう。トランクポートを設定するコマンドを思い出してください。 💪")
+      setCorrectAnswers(prev => ({ ...prev, trunkConfig: false }));
     }
   }
 
   const checkAccessPort = () => {
     if (accessPort === "c") {
       setFeedback3("正解です！素晴らしい！ 🎉")
-      setProgress((prev) => Math.min(prev + 34, 100))
+      setCorrectAnswers(prev => ({ ...prev, accessPort: true }));
     } else {
       setFeedback3("もう一度考えてみよう。アクセスポートの役割を思い出してください。 💪")
+      setCorrectAnswers(prev => ({ ...prev, accessPort: false }));
     }
   }
 
@@ -172,4 +252,3 @@ export default function VLANChallengePage() {
     </Layout>
   )
 }
-
