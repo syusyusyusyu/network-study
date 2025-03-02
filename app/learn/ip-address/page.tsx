@@ -38,80 +38,58 @@ export default function IPAddressLearnPage() {
     networkClass: false
   })
 
-  // ページロード時に保存されている進捗データを取得
-useEffect(() => {
-  const fetchSavedProgress = async () => {
+  // 進捗状態を更新する関数
+  const updateProgress = async () => {
     try {
-      // IndexedDBから全体の進捗データを取得
-      const progressData = await getProgress();
-      
-      // 全体の進捗を取得
-      const totalProgress = progressData.ipAddress || 0;
-      
-      // 学習ページ内での進捗を計算 (100%満点)
-      // 全体の50%を学習ページが担当するので、
-      // 学習ページ内での進捗 = min(100, 全体の進捗 * 2)
-      const learnLocalProgress = Math.min(100, totalProgress * 2);
-      setProgress(learnLocalProgress);
-      
-      // 正解状態を更新（進捗に基づいて）
-      if (learnLocalProgress > 0) {
-        // 学習ページ内での各問題の価値は33.33%
-        const questionLocalValue = 100 / 3;
-        setCorrectAnswers({
-          ipAddress: learnLocalProgress >= questionLocalValue,
-          subnetMask: learnLocalProgress >= questionLocalValue * 2,
-          networkClass: learnLocalProgress >= questionLocalValue * 3,
-        });
-      }
-      
-      console.log(`IP学習ページ: 進捗データ読み込み完了 (ローカル進捗=${learnLocalProgress}%, 全体進捗=${totalProgress}%)`);
-    } catch (error) {
-      console.error('進捗データの取得に失敗しました:', error);
-    }
-  };
-  
-  fetchSavedProgress();
-}, []);
-
-// 正解状態が変わったときにIndexedDBに保存する
-useEffect(() => {
-  const saveCurrentProgress = async () => {
-    // 初期レンダリング時は実行しない
-    if (Object.values(correctAnswers).every(value => value === false)) return;
-    
-    try {
-      // 学習ページでの正解数を計算
+      // 正解数を計算
       const correctCount = Object.values(correctAnswers).filter(Boolean).length;
-      const totalCountInLearn = Object.keys(correctAnswers).length;
+      const totalQuestions = Object.keys(correctAnswers).length;
       
-      // ローカルの進捗状態を更新（学習ページ内での進捗 - 100%満点）
-      const localProgress = Math.round((correctCount / totalCountInLearn) * 100);
-      setProgress(localProgress);
+      // 進捗率を計算（0-100%）
+      const newProgress = Math.round((correctCount / totalQuestions) * 100);
+      setProgress(newProgress);
       
-      // 現在の進捗データを取得
-      const progressData = await getProgress();
+      // 学習パートは全体の50%を占めるので、保存する進捗値は半分（0-50%の範囲）
+      const progressToSave = Math.round(newProgress / 2);
+      await saveProgress('ipAddress', progressToSave);
       
-      // チャレンジページの進捗を保持 (50-100%)
-      const challengePartProgress = Math.max(progressData.ipAddress || 0, 50) - 50;
-      
-      // 学習ページの貢献分を計算 (0-50%)
-      const learnPartProgress = Math.round((correctCount / totalCountInLearn) * 50);
-      
-      // 合計進捗を計算
-      const newTotalProgress = Math.min(learnPartProgress + challengePartProgress, 100);
-      
-      // IndexedDBに保存
-      await saveProgress('ipAddress', newTotalProgress);
-      
-      console.log(`IP学習ページ: 進捗更新 (ローカル進捗=${localProgress}%, 学習=${learnPartProgress}%, チャレンジ=${challengePartProgress}%, 合計=${newTotalProgress}%)`);
     } catch (error) {
       console.error('進捗の保存に失敗しました:', error);
     }
   };
-  
-  saveCurrentProgress();
-}, [correctAnswers]);
+
+  // ページロード時に保存されている進捗データを取得
+  useEffect(() => {
+    const fetchSavedProgress = async () => {
+      try {
+        const progressData = await getProgress();
+        const savedProgress = progressData.ipAddress || 0;
+        
+        // 保存された進捗が0-50%の範囲なので、表示用に倍にする（0-100%の範囲に）
+        const displayProgress = Math.min(100, savedProgress * 2);
+        setProgress(displayProgress);
+        
+        // 保存された進捗に応じて正解状態を設定
+        if (displayProgress > 0) {
+          const questionValue = 100 / 3; // 各問題の価値（33.33%）
+          setCorrectAnswers({
+            ipAddress: displayProgress >= questionValue,
+            subnetMask: displayProgress >= questionValue * 2,
+            networkClass: displayProgress >= questionValue * 3
+          });
+        }
+      } catch (error) {
+        console.error('進捗データの取得に失敗しました:', error);
+      }
+    };
+    
+    fetchSavedProgress();
+  }, []);
+
+  // 正解状態が変わったときに進捗を更新
+  useEffect(() => {
+    updateProgress();
+  }, [correctAnswers]);
 
   const checkIPAddress = () => {
     if (ipAddress.trim() === "192.168.1.11") {
@@ -149,7 +127,6 @@ useEffect(() => {
   const toggleHint = () => {
     setShowHint(!showHint)
   }
-
 
   return (
     <Layout title="IPアドレスの不思議 🏠" backLink="/learn" backText="学習メニューに戻る">
@@ -262,4 +239,3 @@ useEffect(() => {
     </Layout>
   )
 }
-
