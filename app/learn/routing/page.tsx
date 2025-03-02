@@ -197,13 +197,13 @@ export default function RoutingLearnPage() {
 
           <div className="mt-6 space-y-4">
             <p className="text-lg font-semibold">
-              3. PC1からサーバーに通信するために必要なルート設定はどれですか？
+              3. PC1からサーバに通信するために必要なルート設定はどれですか？
             </p>
             <RadioGroup value={routeCommand} onValueChange={setRouteCommand}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="a" id="rc1" />
                 <Label htmlFor="rc1">
-                  <span className="font-semibold">ルータAで設定</span>：サーバーのネットワーク(192.168.2.0)へのルート
+                  <span className="font-semibold">ルータAで設定</span>：サーバのネットワーク(192.168.2.0)へのルート
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
@@ -215,7 +215,7 @@ export default function RoutingLearnPage() {
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="c" id="rc3" />
                 <Label htmlFor="rc3">
-                  <span className="font-semibold">ルータAで設定</span>：サーバー自身(192.168.2.10)へのルート
+                  <span className="font-semibold">ルータAで設定</span>：サーバ自身(192.168.2.10)へのルート
                 </Label>
               </div>
             </RadioGroup>
@@ -243,7 +243,7 @@ export default function RoutingLearnPage() {
                 <strong>ヒント:</strong><br/>
                 1. ルーティングの主な目的は、パケットがある場所から別の場所へ移動する際の道筋を決めることです。<br/>
                 2. スタティックルーティングは管理者が手動で設定する方法で、設定が簡単なのが特徴です。<br/>
-                3. ルートを設定する際は、「どのネットワークに向けて」「どのルーターを経由するか」を考えましょう。
+                3. ルートを設定する際は、「どのネットワークに向けて」「どのルータを経由するか」を考えましょう。
                 図を見ると、PC1はルータAに繋がっており、サーバーはルータBに繋がっていることが分かります。
               </p>
             </div>
