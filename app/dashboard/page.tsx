@@ -166,11 +166,8 @@ export default function DashboardPage() {
       )}
       
       <div className="mt-8 space-x-4">
-        <Button asChild>
-          <Link href="/learn">学習を続ける</Link>
-        </Button>
         <Button asChild variant="secondary">
-          <Link href="/challenge">チャレンジに挑戦</Link>
+          <Link href="/">トップメニューに戻る</Link>
         </Button>
       </div>
     </div>
