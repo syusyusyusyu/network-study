@@ -1,6 +1,6 @@
 "use client"
 
-import { useState,useEffect } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { saveProgress, getProgress } from "../utils/db"
 import { Button } from "@/components/ui/button"
@@ -38,6 +38,22 @@ export default function NetworkBasicsPage() {
   const [wifiFeedback3, setWifiFeedback3] = useState("")
 
   const [progress, setProgress] = useState(0)
+  
+  // 各問題の正解状態を管理する
+  const [correctAnswers, setCorrectAnswers] = useState({
+    ipAnswer1: false,
+    ipAnswer2: false,
+    ipAnswer3: false,
+    routingAnswer1: false,
+    routingAnswer2: false,
+    routingAnswer3: false,
+    vlanAnswer1: false,
+    vlanAnswer2: false,
+    vlanAnswer3: false,
+    wifiAnswer1: false,
+    wifiAnswer2: false,
+    wifiAnswer3: false
+  })
 
   // useEffectを追加して、ページロード時に保存された進捗データを取得
   useEffect(() => {
@@ -45,7 +61,30 @@ export default function NetworkBasicsPage() {
       try {
         const progressData = await getProgress()
         // ネットワーク基礎の進捗データを設定
-        setProgress(progressData.basic)
+        setProgress(progressData.basic || 0)
+        
+        // 進捗に基づいて正解状態を復元
+        const totalQuestions = 12
+        const correctCount = Math.round((progressData.basic || 0) * totalQuestions / 100)
+        
+        // 進捗に応じて問題ごとに正解状態を設定
+        // 8.33%が一問あたりの進捗率
+        if (correctCount > 0) {
+          setCorrectAnswers({
+            ipAnswer1: correctCount >= 1,
+            ipAnswer2: correctCount >= 2,
+            ipAnswer3: correctCount >= 3,
+            routingAnswer1: correctCount >= 4,
+            routingAnswer2: correctCount >= 5,
+            routingAnswer3: correctCount >= 6,
+            vlanAnswer1: correctCount >= 7,
+            vlanAnswer2: correctCount >= 8,
+            vlanAnswer3: correctCount >= 9,
+            wifiAnswer1: correctCount >= 10,
+            wifiAnswer2: correctCount >= 11,
+            wifiAnswer3: correctCount >= 12,
+          })
+        }
       } catch (error) {
         console.error('進捗データの読み込みに失敗しました:', error)
         // エラーが発生した場合でも、アプリは機能し続けるように0を設定
@@ -57,25 +96,35 @@ export default function NetworkBasicsPage() {
   }, [])
 
   // 既存のupdateOverallProgress関数を修正
-  const updateOverallProgress = (newProgress: number) => {
-    // 新しい進捗を状態にセット
-    setProgress(newProgress)
+  const updateOverallProgress = (question: string, isCorrect: boolean) => {
+    // 正解状態を更新（直接値を設定）
+    const updatedCorrectAnswers = {
+      ...correctAnswers,
+      [question]: isCorrect
+    }
     
-    // 全ての問題数（4セクション×3問 = 12問）
-    const totalQuestions = 12
-    // 正解した問題数（全体進捗率×問題数）
-    const correctAnswers = (newProgress / 100) * totalQuestions
+    setCorrectAnswers(updatedCorrectAnswers)
+    
+    // 正解した問題数を数える
+    const correctCount = Object.values(updatedCorrectAnswers).filter(Boolean).length
+    const totalQuestions = Object.keys(updatedCorrectAnswers).length
     
     // 正解率を計算（%）
-    const completionRate = (correctAnswers / totalQuestions) * 100
+    const newProgress = (correctCount / totalQuestions) * 100
+    
+    // 状態を更新
+    setProgress(newProgress)
     
     // IndexedDBに保存
-    saveProgress('basic', completionRate).catch(console.error)
+    saveProgress('basic', newProgress).catch(console.error)
   }
 
   const checkIpAnswer1 = () => {
     const inputIP = ipAnswer1.trim()
     const ipParts = inputIP.split(".")
+    
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.ipAnswer1
 
     if (
       ipParts.length === 4 &&
@@ -86,108 +135,189 @@ export default function NetworkBasicsPage() {
       Number.parseInt(ipParts[3]) <= 254
     ) {
       setIpFeedback1("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.33, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("ipAnswer1", true)
+      }
     } else {
       setIpFeedback1("不正解です。192.168.1.2 から 192.168.1.254 の範囲で考えてみましょう。")
+      updateOverallProgress("ipAnswer1", false)
     }
   }
 
   const checkIpAnswer2 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.ipAnswer2
+    
     if (ipAnswer2 === "c") {
       setIpFeedback2("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.33, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("ipAnswer2", true)
+      }
     } else {
       setIpFeedback2("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("ipAnswer2", false)
     }
   }
 
   const checkIpAnswer3 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.ipAnswer3
+    
     if (ipAnswer3 === "b") {
       setIpFeedback3("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.34, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("ipAnswer3", true)
+      }
     } else {
       setIpFeedback3("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("ipAnswer3", false)
     }
   }
 
   const checkRoutingAnswer1 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.routingAnswer1
+    
     if (routingAnswer1 === "b") {
       setRoutingFeedback1("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.33, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("routingAnswer1", true)
+      }
     } else {
       setRoutingFeedback1("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("routingAnswer1", false)
     }
   }
 
   const checkRoutingAnswer2 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.routingAnswer2
+    
     if (routingAnswer2 === "a") {
       setRoutingFeedback2("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.33, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("routingAnswer2", true)
+      }
     } else {
       setRoutingFeedback2("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("routingAnswer2", false)
     }
   }
 
   const checkRoutingAnswer3 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.routingAnswer3
+    
     if (routingAnswer3 === "c") {
       setRoutingFeedback3("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.34, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("routingAnswer3", true)
+      }
     } else {
       setRoutingFeedback3("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("routingAnswer3", false)
     }
   }
 
   const checkVlanAnswer1 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.vlanAnswer1
+    
     if (vlanAnswer1 === "c") {
       setVlanFeedback1("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.33, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("vlanAnswer1", true)
+      }
     } else {
       setVlanFeedback1("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("vlanAnswer1", false)
     }
   }
 
   const checkVlanAnswer2 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.vlanAnswer2
+    
     if (vlanAnswer2 === "b") {
       setVlanFeedback2("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.33, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("vlanAnswer2", true)
+      }
     } else {
       setVlanFeedback2("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("vlanAnswer2", false)
     }
   }
 
   const checkVlanAnswer3 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.vlanAnswer3
+    
     if (vlanAnswer3 === "a") {
       setVlanFeedback3("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.34, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("vlanAnswer3", true)
+      }
     } else {
       setVlanFeedback3("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("vlanAnswer3", false)
     }
   }
 
   const checkWifiAnswer1 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.wifiAnswer1
+    
     if (wifiAnswer1.toLowerCase() === "ssid") {
       setWifiFeedback1("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.33, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("wifiAnswer1", true)
+      }
     } else {
       setWifiFeedback1("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("wifiAnswer1", false)
     }
   }
 
   const checkWifiAnswer2 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.wifiAnswer2
+    
     if (wifiAnswer2 === "c") {
       setWifiFeedback2("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.33, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("wifiAnswer2", true)
+      }
     } else {
       setWifiFeedback2("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("wifiAnswer2", false)
     }
   }
 
   const checkWifiAnswer3 = () => {
+    // すでに正解済みかどうかを確認
+    const alreadyCorrect = correctAnswers.wifiAnswer3
+    
     if (wifiAnswer3 === "b") {
       setWifiFeedback3("正解です！ 👍")
-      updateOverallProgress(Math.min(progress + 8.34, 100))
+      // すでに正解済みでなければ、進捗を更新
+      if (!alreadyCorrect) {
+        updateOverallProgress("wifiAnswer3", true)
+      }
     } else {
       setWifiFeedback3("不正解です。もう一度考えてみましょう。")
+      updateOverallProgress("wifiAnswer3", false)
     }
   }
 
