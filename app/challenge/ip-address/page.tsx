@@ -110,7 +110,7 @@ export default function IPAddressChallengePage() {
   }, [correctAnswers]);
 
   const checkPC2IP = () => {
-    const usedIPs = ["192.168.1.1", "192.168.1.10"];
+    const usedIPs = ["192.168.1.1", "192.168.1.10","192.168.1.100"];
     const ipParts = pc2IP.split(".");
     if (
       ipParts.length === 4 &&
