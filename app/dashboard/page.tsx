@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import confetti from 'canvas-confetti'
 
 export default function DashboardPage() {
   // 初期値を0に設定
@@ -36,6 +37,10 @@ export default function DashboardPage() {
   const [isResetting, setIsResetting] = useState(false)
   // リセット確認ダイアログの状態
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
+  // コンプリート演出表示の状態
+  const [showCompletion, setShowCompletion] = useState(false)
+  // コンプリート確認済みフラグ（演出を一度だけ表示するため）
+  const [hasTriggeredCompletion, setHasTriggeredCompletion] = useState(false)
 
   // 進捗データを取得する関数
   const fetchProgress = async () => {
@@ -43,12 +48,73 @@ export default function DashboardPage() {
       setIsLoading(true)
       const data = await getProgress()
       setProgress(data)
+      
+      // 全ての進捗が100%か確認
+      const isComplete = 
+        data.basic === 100 && 
+        data.ipAddress === 100 && 
+        data.routing === 100 && 
+        data.vlan === 100 && 
+        data.wireless === 100
+      
+      // 初めて100%達成した時だけお祝い演出を表示
+      if (isComplete && !hasTriggeredCompletion) {
+        setShowCompletion(true)
+        setHasTriggeredCompletion(true)
+        
+        // confetti効果を実行
+        setTimeout(() => {
+          triggerConfetti()
+        }, 300)
+      }
     } catch (err) {
       console.error('進捗データの取得に失敗しました', err)
       setError('データの読み込みに失敗しました。ページを再読み込みしてください。')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // confetti効果を実行する関数
+  const triggerConfetti = () => {
+    if (typeof window !== 'undefined') {
+      const duration = 5000
+      const animationEnd = Date.now() + duration
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 }
+      
+      function randomInRange(min: number, max: number) {
+        return Math.random() * (max - min) + min
+      }
+      
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now()
+        
+        if (timeLeft <= 0) {
+          return clearInterval(interval)
+        }
+        
+        const particleCount = 50 * (timeLeft / duration)
+        
+        // 画面の左側から紙吹雪
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        })
+        
+        // 画面の右側から紙吹雪
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        })
+      }, 250)
+    }
+  }
+
+  // コンプリート演出を閉じる
+  const closeCompletion = () => {
+    setShowCompletion(false)
   }
 
   useEffect(() => {
@@ -61,6 +127,7 @@ export default function DashboardPage() {
     try {
       setIsResetting(true)
       await resetProgress()
+      setHasTriggeredCompletion(false) // リセット時にフラグもリセット
       await fetchProgress() // データをリセット後に再取得
       setResetDialogOpen(false) // ダイアログを閉じる
     } catch (err) {
@@ -170,6 +237,24 @@ export default function DashboardPage() {
           <Link href="/">トップメニューに戻る</Link>
         </Button>
       </div>
+
+      {/* コンプリート演出のモーダル */}
+      {showCompletion && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-gradient-to-br from-blue-600 to-purple-700 p-8 rounded-lg shadow-2xl text-center max-w-md animate-bounce-slow">
+            <h2 className="text-4xl font-bold text-yellow-300 mb-4">おめでとうございます！</h2>
+            <p className="text-2xl text-white mb-6">
+              全てのネットワーク学習コースを修了しました！🎉
+            </p>
+            <Button 
+              onClick={closeCompletion}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-lg px-8 py-4"
+            >
+              閉じる
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
