@@ -120,7 +120,7 @@ export default function VLANChallengePage() {
       setFeedback1("正解です！素晴らしい！ 🎉")
       setCorrectAnswers(prev => ({ ...prev, vlanId: true }));
     } else {
-      setFeedback1("もう一度考えてみよう。サーバーが属するVLAN IDを確認してください。 💪")
+      setFeedback1("もう一度考えてみよう。サーバが属するVLAN IDを確認してください。 💪")
       setCorrectAnswers(prev => ({ ...prev, vlanId: false }));
     }
   }
@@ -160,7 +160,7 @@ export default function VLANChallengePage() {
         </p>
 
         <div className="mt-6 space-y-4">
-          <p className="text-lg font-semibold">1. サーバーが属するVLAN IDは何ですか？</p>
+          <p className="text-lg font-semibold">1. サーバが属するVLAN IDは何ですか？</p>
           <Input
             type="text"
             placeholder="VLAN IDを入力"
@@ -244,7 +244,7 @@ export default function VLANChallengePage() {
               <br />
               2. トランクポートの設定には、特定のコマンドを使用します。通常は "switchport mode ..." の形式です。
               <br />
-              3. アクセスポートは、エンドデバイス（PCやサーバーなど）を特定のVLANに接続するために使用されます。
+              3. アクセスポートは、エンドデバイス（PCやサーバなど）を特定のVLANに接続するために使用されます。
             </p>
           </div>
         )}
