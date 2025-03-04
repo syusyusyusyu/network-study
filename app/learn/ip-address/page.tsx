@@ -92,7 +92,10 @@ export default function IPAddressLearnPage() {
   }, [correctAnswers]);
 
   const checkIPAddress = () => {
-    if (ipAddress.trim() === "192.168.1.11") {
+    if (ipAddress.trim().startsWith("192.168.1.") && ipAddress.trim() !== "192.168.1.1" && ipAddress.trim() !== "192.168.1.10" && (() => {
+      const lastOctet = parseInt(ipAddress.trim().split(".")[3], 10);
+      return lastOctet > 0 && lastOctet < 255;
+    })()) {
       setFeedback("正解です！素晴らしい！ 🎉")
       setCorrectAnswers(prev => ({ ...prev, ipAddress: true }));
     } else if (ipAddress.startsWith("192.168.1.")) {
