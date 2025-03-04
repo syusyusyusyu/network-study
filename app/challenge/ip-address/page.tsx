@@ -110,7 +110,18 @@ export default function IPAddressChallengePage() {
   }, [correctAnswers]);
 
   const checkPC2IP = () => {
-    if (pc2IP === "192.168.1.11") {
+    const usedIPs = ["192.168.1.1", "192.168.1.10", "192.168.1.100"];
+    const ipParts = pc2IP.split(".");
+    if (
+      ipParts.length === 4 &&
+      ipParts[0] === "192" &&
+      ipParts[1] === "168" &&
+      ipParts[2] === "1" &&
+      !usedIPs.includes(pc2IP) &&
+      !isNaN(Number(ipParts[3])) &&
+      Number(ipParts[3]) > 0 &&
+      Number(ipParts[3]) < 255
+    ) {
       setFeedback1("正解です！素晴らしい！ 🎉")
       setCorrectAnswers(prev => ({ ...prev, pc2IP: true }));
     } else if (pc2IP.startsWith("192.168.1.")) {
