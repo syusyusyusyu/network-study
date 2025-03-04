@@ -402,7 +402,7 @@ export default function NetworkBasicsPage() {
           <p className="mb-2">
             ルーティングは、データパケットが出発地から目的地まで最適な経路を見つけて送信される過程です。
           </p>
-          <p className="mb-2">ルーターは、異なるネットワーク間でデータを転送する装置です。</p>
+          <p className="mb-2">ルータは、異なるネットワーク間でデータを転送する装置です。</p>
           <p className="mb-4">スタティックルーティングは、管理者が手動でルーティングテーブルを設定する方法です。</p>
           <div className="bg-blue-900 bg-opacity-50 p-4 rounded-lg mb-4">
             <h3 className="text-xl font-bold mb-2">問題 1</h3>
