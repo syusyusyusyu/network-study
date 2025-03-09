@@ -1,0 +1,1 @@
+self.__NEXT_FONT_MANIFEST="{\"pages\":{},\"app\":{\"/mnt/c/Users/kinon/network-study-1/app/layout\":[\"static/media/c95a3d7e5d1d39ce-s.p.woff2\",\"static/media/21ed5661b47f7f6d-s.p.woff2\"]},\"appUsingSizeAdjust\":true,\"pagesUsingSizeAdjust\":false}"
