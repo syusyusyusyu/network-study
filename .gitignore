@@ -1,1 +1,22 @@
 node_modules/
+# Python / FastAPI 関連
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# FastAPI 特有
+app/__pycache__/
+app/api/__pycache__/
+
+# Uvicorn / サーバー関連
+*.log
