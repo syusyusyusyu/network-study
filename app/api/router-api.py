@@ -194,7 +194,7 @@ connected_routers = {}
 DUMMY_ROUTERS = {
     VendorType.CISCO: {
         "info": {
-            "name": "Cisco 892",
+            "name": "Cisco R1",
             "model": "C892FSP-K9",
             "serial_number": "FTX1840ABCD",
             "firmware_version": "15.7(3)M2",
@@ -208,50 +208,40 @@ DUMMY_ROUTERS = {
                 "ip": "192.168.1.1",
                 "speed": "1000Mb/s",
                 "duplex": "full",
-                "description": "LAN接続",
+                "description": "Connection to PC1",
                 "mac": "00:11:22:33:44:55"
             },
             "GigabitEthernet0/1": {
                 "name": "GigabitEthernet0/1",
                 "status": "up", 
                 "protocol": "up", 
-                "ip": "10.0.0.1",
+                "ip": "192.168.2.1",
                 "speed": "1000Mb/s",
                 "duplex": "full",
-                "description": "WAN接続",
+                "description": "Connection to R2",
                 "mac": "00:11:22:33:44:56"
             },
             "GigabitEthernet0/2": {
                 "name": "GigabitEthernet0/2",
-                "status": "up", 
-                "protocol": "up", 
-                "ip": "172.16.0.1",
-                "speed": "1000Mb/s",
-                "duplex": "full",
-                "description": "DMZ",
-                "mac": "00:11:22:33:44:57"
-            },
-            "GigabitEthernet0/3": {
-                "name": "GigabitEthernet0/3",
                 "status": "administratively down", 
                 "protocol": "down", 
                 "ip": "unassigned",
                 "speed": "auto",
                 "duplex": "auto",
-                "description": "未使用",
-                "mac": "00:11:22:33:44:58"
+                "description": "Unused",
+                "mac": "00:11:22:33:44:57"
             }
         },
         "routes": [
             {"destination": "192.168.1.0", "prefix_length": 24, "next_hop": "Connected", "interface": "GigabitEthernet0/0", "protocol": "C", "metric": 0, "administrative_distance": 0, "type": "Direct"},
-            {"destination": "10.0.0.0", "prefix_length": 24, "next_hop": "Connected", "interface": "GigabitEthernet0/1", "protocol": "C", "metric": 0, "administrative_distance": 0, "type": "Direct"},
-            {"destination": "172.16.0.0", "prefix_length": 24, "next_hop": "Connected", "interface": "GigabitEthernet0/2", "protocol": "C", "metric": 0, "administrative_distance": 0, "type": "Direct"},
-            {"destination": "0.0.0.0", "prefix_length": 0, "next_hop": "10.0.0.254", "interface": "GigabitEthernet0/1", "protocol": "S", "metric": 1, "administrative_distance": 1, "type": "Static"}
+            {"destination": "192.168.2.0", "prefix_length": 24, "next_hop": "Connected", "interface": "GigabitEthernet0/1", "protocol": "C", "metric": 0, "administrative_distance": 0, "type": "Direct"},
+            {"destination": "192.168.3.0", "prefix_length": 24, "next_hop": "192.168.2.2", "interface": "GigabitEthernet0/1", "protocol": "S", "metric": 1, "administrative_distance": 1, "type": "Static"},
+            {"destination": "0.0.0.0", "prefix_length": 0, "next_hop": "192.168.2.2", "interface": "GigabitEthernet0/1", "protocol": "S", "metric": 1, "administrative_distance": 1, "type": "Static"}
         ]
     },
     VendorType.JUNIPER: {
         "info": {
-            "name": "Juniper SRX320",
+            "name": "Juniper R2",
             "model": "SRX320",
             "serial_number": "AF1234567890",
             "firmware_version": "21.4R1.12",
@@ -262,27 +252,28 @@ DUMMY_ROUTERS = {
                 "name": "ge-0/0/0",
                 "status": "up", 
                 "protocol": "up", 
-                "ip": "192.168.1.1",
+                "ip": "192.168.2.2",
                 "speed": "1000Mb/s",
                 "duplex": "full",
-                "description": "LAN接続",
+                "description": "Connection to R1",
                 "mac": "00:a1:b2:c3:d4:e5"
             },
             "ge-0/0/1": {
                 "name": "ge-0/0/1",
                 "status": "up", 
                 "protocol": "up", 
-                "ip": "10.0.0.1",
+                "ip": "192.168.3.1",
                 "speed": "1000Mb/s",
                 "duplex": "full",
-                "description": "WAN接続",
+                "description": "Connection to PC2",
                 "mac": "00:a1:b2:c3:d4:e6"
             }
         },
         "routes": [
-            {"destination": "192.168.1.0", "prefix_length": 24, "next_hop": "Connected", "interface": "ge-0/0/0", "protocol": "Direct", "metric": 0, "administrative_distance": 0, "type": "Direct"},
-            {"destination": "10.0.0.0", "prefix_length": 24, "next_hop": "Connected", "interface": "ge-0/0/1", "protocol": "Direct", "metric": 0, "administrative_distance": 0, "type": "Direct"},
-            {"destination": "0.0.0.0", "prefix_length": 0, "next_hop": "10.0.0.254", "interface": "ge-0/0/1", "protocol": "Static", "metric": 1, "administrative_distance": 5, "type": "Static"}
+            {"destination": "192.168.1.0", "prefix_length": 24, "next_hop": "192.168.2.1", "interface": "ge-0/0/0", "protocol": "S", "metric": 1, "administrative_distance": 5, "type": "Static"},
+            {"destination": "192.168.2.0", "prefix_length": 24, "next_hop": "Connected", "interface": "ge-0/0/0", "protocol": "Direct", "metric": 0, "administrative_distance": 0, "type": "Direct"},
+            {"destination": "192.168.3.0", "prefix_length": 24, "next_hop": "Connected", "interface": "ge-0/0/1", "protocol": "Direct", "metric": 0, "administrative_distance": 0, "type": "Direct"},
+            {"destination": "0.0.0.0", "prefix_length": 0, "next_hop": "192.168.2.1", "interface": "ge-0/0/0", "protocol": "Static", "metric": 1, "administrative_distance": 5, "type": "Static"}
         ]
     }
 }
@@ -898,19 +889,22 @@ def generate_dummy_traceroute(target):
     """ダミーのトレースルート結果を生成"""
     hops = []
     
-    # ローカルネットワークのホップ
-    hops.append({"hop": 1, "ip": "192.168.1.1", "hostname": "router.local", "rtt": 0.5, "status": "success"})
-    
-    # ISPのホップ
-    hops.append({"hop": 2, "ip": "10.0.0.1", "hostname": None, "rtt": 1.2, "status": "success"})
-    hops.append({"hop": 3, "ip": "172.16.0.1", "hostname": None, "rtt": 5.8, "status": "success"})
-    
-    # インターネットのホップ（一部タイムアウト）
-    hops.append({"hop": 4, "ip": "*", "hostname": None, "rtt": None, "status": "timeout"})
-    hops.append({"hop": 5, "ip": "203.0.113.1", "hostname": None, "rtt": 15.3, "status": "success"})
-    
-    # 最終目的地
-    hops.append({"hop": 6, "ip": target, "hostname": None, "rtt": 20.1, "status": "success"})
+    # PC1 to PC2 route
+    if target == "192.168.3.10":
+        hops.append({"hop": 1, "ip": "192.168.1.1", "hostname": "R1", "rtt": 0.5, "status": "success"})
+        hops.append({"hop": 2, "ip": "192.168.2.2", "hostname": "R2", "rtt": 1.2, "status": "success"})
+        hops.append({"hop": 3, "ip": "192.168.3.10", "hostname": "PC2", "rtt": 2.1, "status": "success"})
+    # PC2 to PC1 route
+    elif target == "192.168.1.10":
+        hops.append({"hop": 1, "ip": "192.168.3.1", "hostname": "R2", "rtt": 0.5, "status": "success"})
+        hops.append({"hop": 2, "ip": "192.168.2.1", "hostname": "R1", "rtt": 1.2, "status": "success"})
+        hops.append({"hop": 3, "ip": "192.168.1.10", "hostname": "PC1", "rtt": 2.1, "status": "success"})
+    # Default route (to internet)
+    else:
+        hops.append({"hop": 1, "ip": "192.168.1.1", "hostname": "R1", "rtt": 0.5, "status": "success"})
+        hops.append({"hop": 2, "ip": "192.168.2.2", "hostname": "R2", "rtt": 1.2, "status": "success"})
+        hops.append({"hop": 3, "ip": "8.8.8.8", "hostname": None, "rtt": 15.3, "status": "success"})
+        hops.append({"hop": 4, "ip": target, "hostname": None, "rtt": 20.1, "status": "success"})
     
     return hops
 
