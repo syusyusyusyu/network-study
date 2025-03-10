@@ -52,40 +52,48 @@ type RouteEntry = {
 
 // Mock data for simulation when not connected to real router
 const DUMMY_ROUTER = {
-  name: "Cisco 892",
+  name: "Cisco 2911",
   ip: "192.168.1.1",
-  model: "C892FSP-K9",
+  model: "CISCO2911/K9",
   serialNumber: "FTX1840ABCD",
   firmwareVersion: "15.7(3)M2",
   uptime: "10 days, 4 hours, 32 minutes"
 };
 
 const INTERFACE_STATUSES = {
-  GigabitEthernet0: { status: "up", protocol: "up", ip: "192.168.1.1", speed: "1000Mb/s", duplex: "full" },
-  GigabitEthernet1: { status: "up", protocol: "up", ip: "10.0.0.1", speed: "1000Mb/s", duplex: "full" },
-  GigabitEthernet2: { status: "up", protocol: "up", ip: "172.16.0.1", speed: "1000Mb/s", duplex: "full" },
-  GigabitEthernet3: { status: "administratively down", protocol: "down", ip: "unassigned", speed: "auto", duplex: "auto" }
+  "GigabitEthernet0/0": { status: "up", protocol: "up", ip: "192.168.1.1", speed: "1000Mb/s", duplex: "full" },
+  "GigabitEthernet0/1": { status: "up", protocol: "up", ip: "192.168.2.1", speed: "1000Mb/s", duplex: "full" }
 };
 
 const ROUTING_TABLE: RouteEntry[] = [
-  { destination: "0.0.0.0/0", nextHop: "203.0.113.1", interface: "GigabitEthernet1", protocol: "S", metric: 1, type: "Default route" },
-  { destination: "10.0.0.0/24", nextHop: "Connected", interface: "GigabitEthernet1", protocol: "C", metric: 0, type: "Direct" },
-  { destination: "172.16.0.0/24", nextHop: "Connected", interface: "GigabitEthernet2", protocol: "C", metric: 0, type: "Direct" },
-  { destination: "192.168.1.0/24", nextHop: "Connected", interface: "GigabitEthernet0", protocol: "C", metric: 0, type: "Direct" },
-  { destination: "192.168.2.0/24", nextHop: "Connected", interface: "GigabitEthernet3", protocol: "C", metric: 0, type: "Direct" },
-  { destination: "192.168.3.0/24", nextHop: "10.0.0.2", interface: "GigabitEthernet1", protocol: "S", metric: 1, type: "Static" }
+  { destination: "192.168.1.0/24", nextHop: "Connected", interface: "GigabitEthernet0/0", protocol: "C", metric: 0, type: "Direct" },
+  { destination: "192.168.2.0/24", nextHop: "Connected", interface: "GigabitEthernet0/1", protocol: "C", metric: 0, type: "Direct" },
+  { destination: "192.168.3.0/24", nextHop: "192.168.2.2", interface: "GigabitEthernet0/1", protocol: "S", metric: 1, type: "Static" }
 ];
 
 const TRACE_ROUTE_RESULT: TraceRouteHop[] = [
-  { hop: 1, ip: "192.168.1.1", rtt: 0.5 },
-  { hop: 2, ip: "10.0.0.1", rtt: 1.2 },
-  { hop: 3, ip: "10.0.0.2", rtt: 12.1 },
-  { hop: 4, ip: "192.168.3.1", rtt: 13.2 },
-  { hop: 5, ip: "192.168.3.10", rtt: 14.1 }
+  { hop: 1, ip: "192.168.2.2", rtt: 1.0 },
+  { hop: 2, ip: "192.168.3.10", rtt: 2.0 }
 ];
 
 // Base API URL - should point to your FastAPI backend
 const API_BASE_URL = 'http://localhost:8000';
+
+// Network configuration details for topology display
+const NETWORK_TOPOLOGY = {
+  devices: [
+    { name: "PC1", type: "PC", interface: "NIC", ip: "192.168.1.10/24" },
+    { name: "R1", type: "Router", interfaces: [
+      { name: "G0/0", ip: "192.168.1.1/24", connects_to: "PC1" },
+      { name: "G0/1", ip: "192.168.2.1/24", connects_to: "R2" }
+    ]},
+    { name: "R2", type: "Router", interfaces: [
+      { name: "G0/0", ip: "192.168.2.2/24", connects_to: "R1" },
+      { name: "G0/1", ip: "192.168.3.1/24", connects_to: "PC2" }
+    ]},
+    { name: "PC2", type: "PC", interface: "NIC", ip: "192.168.3.10/24" }
+  ]
+};
 
 export default function RoutingPracticePage() {
   const [connected, setConnected] = useState(false)
@@ -99,7 +107,7 @@ export default function RoutingPracticePage() {
   const [routerIp, setRouterIp] = useState("192.168.1.1")
   const [username, setUsername] = useState("admin")
   const [password, setPassword] = useState("")
-  const [targetIp, setTargetIp] = useState("8.8.8.8")
+  const [targetIp, setTargetIp] = useState("192.168.3.10")
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [expandedSections, setExpandedSections] = useState({
@@ -108,7 +116,8 @@ export default function RoutingPracticePage() {
     routing: true,
     traceroute: false,
     terminal: false,
-    diagnostics: true
+    diagnostics: true,
+    networkTopology: true
   })
   const [showConnectionForm, setShowConnectionForm] = useState(false)
   const [commandInput, setCommandInput] = useState("")
@@ -168,7 +177,7 @@ export default function RoutingPracticePage() {
           addTerminalLine("デモルーターに接続しました");
           addTerminalLine("認証中...");
           addTerminalLine("認証成功");
-          setRouterInfo(DUMMY_ROUTER);
+          setRouterInfo({...DUMMY_ROUTER, ip: routerIp});
           setInterfaces(INTERFACE_STATUSES);
           setRoutingTable(ROUTING_TABLE);
           setConnected(true);
@@ -179,6 +188,19 @@ export default function RoutingPracticePage() {
       console.error("接続エラー:", err);
       setError(err instanceof Error ? err.message : "接続エラーが発生しました");
     }
+  }
+
+  // Disconnect from router
+  const handleDisconnect = () => {
+    setConnected(false);
+    setRouterInfo(null);
+    setInterfaces({});
+    setRoutingTable([]);
+    setTracerouteResult([]);
+    setDiagnosticResults(null);
+    addTerminalLine("ルーターとの接続を切断しました。");
+    addTerminalLine("新しいルーターに接続するには接続フォームを使用してください。");
+    setShowConnectionForm(true);
   }
 
   // Add line to terminal output
@@ -204,7 +226,7 @@ export default function RoutingPracticePage() {
     } catch (err) {
       console.error("ルーター情報取得エラー:", err);
       // Fallback to dummy data
-      setRouterInfo(DUMMY_ROUTER);
+      setRouterInfo({...DUMMY_ROUTER, ip: routerIp});
       setInterfaces(INTERFACE_STATUSES);
       setRoutingTable(ROUTING_TABLE);
     }
@@ -433,29 +455,38 @@ export default function RoutingPracticePage() {
               </h2>
               <p className="text-xs sm:text-sm opacity-90">
                 {connected 
-                  ? `${routerInfo?.name || 'Cisco'} ルーター (${routerIp}) に接続されています` 
+                  ? `${routerInfo?.name || 'Cisco'} ルーター (${routerInfo?.ip || routerIp}) に接続されています` 
                   : '接続ボタンをクリックしてルーターへの接続を確立してください'}
               </p>
             </div>
             
             {connected ? (
-              <button 
-                className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-md flex items-center font-medium text-sm"
-                onClick={runDiagnostics}
-                disabled={isRunningDiagnostics}
-              >
-                {isRunningDiagnostics ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 animate-spin" />
-                    <span>診断実行中...</span>
-                  </>
-                ) : (
-                  <>
-                    <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-                    <span>診断を実行</span>
-                  </>
-                )}
-              </button>
+              <div className="ml-auto flex items-center space-x-2">
+                <button 
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-md flex items-center font-medium text-sm"
+                  onClick={runDiagnostics}
+                  disabled={isRunningDiagnostics}
+                >
+                  {isRunningDiagnostics ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 animate-spin" />
+                      <span>診断実行中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                      <span>診断を実行</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-md flex items-center font-medium text-sm"
+                  onClick={handleDisconnect}
+                >
+                  <WifiOff className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                  <span>切断</span>
+                </button>
+              </div>
             ) : (
               <button 
                 className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-md flex items-center font-medium text-sm"
@@ -518,19 +549,112 @@ export default function RoutingPracticePage() {
                   className="bg-white text-black placeholder-gray-400"
                 />
               </div>
-              <Button 
-                className="w-full bg-green-600 hover:bg-green-700 mt-2"
-                onClick={handleConnect}
-              >
-                <Wifi className="mr-2 h-4 w-4" />
-                接続
-              </Button>
+              <div className="flex space-x-2">
+                <Button 
+                  className="flex-1 bg-green-600 hover:bg-green-700 mt-2"
+                  onClick={handleConnect}
+                >
+                  <Wifi className="mr-2 h-4 w-4" />
+                  接続
+                </Button>
+                <Button
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 mt-2"
+                  onClick={() => {
+                    setRouterIp("192.168.2.2");
+                    setUsername("admin");
+                    setPassword("");
+                  }}
+                >
+                  <RouterIcon className="mr-2 h-4 w-4" />
+                  R2に設定
+                </Button>
+              </div>
               <p className="text-xs italic mt-2">
-                接続できない場合はデモモードで動作します。
+                接続できない場合はデモモードで動作します。「R2に設定」ボタンをクリックすると、R2ルーターの接続情報が設定されます。
               </p>
             </div>
           </div>
         )}
+
+        {/* Network Topology */}
+        <div className="bg-white bg-opacity-20 rounded-xl border-2 border-cyan-400 overflow-hidden">
+          <div 
+            className="flex items-center justify-between bg-cyan-500 bg-opacity-30 px-3 py-2 sm:px-4 sm:py-3 cursor-pointer"
+            onClick={() => toggleSection('networkTopology')}
+          >
+            <div className="flex items-center">
+              <Network className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-300 mr-2" />
+              <h2 className="font-semibold text-sm sm:text-base">ネットワークトポロジー</h2>
+            </div>
+            {expandedSections.networkTopology ? (
+              <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-300" />
+            ) : (
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-300" />
+            )}
+          </div>
+          
+          {expandedSections.networkTopology && (
+            <div className="p-3 sm:p-4">
+              <div className="bg-black bg-opacity-20 rounded-lg p-3 sm:p-4">
+                <table className="min-w-full border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-400 border-opacity-20">
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">デバイス</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">インターフェース</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">IPアドレス</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">接続先</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-400 border-opacity-20">
+                      <td className="px-3 py-2 text-sm">PC1</td>
+                      <td className="px-3 py-2 text-sm">NIC</td>
+                      <td className="px-3 py-2 text-sm font-mono">192.168.1.10/24</td>
+                      <td className="px-3 py-2 text-sm">R1 (G0/0)</td>
+                    </tr>
+                    <tr className="border-b border-gray-400 border-opacity-20">
+                      <td className="px-3 py-2 text-sm">R1</td>
+                      <td className="px-3 py-2 text-sm">G0/0</td>
+                      <td className="px-3 py-2 text-sm font-mono">192.168.1.1/24</td>
+                      <td className="px-3 py-2 text-sm">PC1</td>
+                    </tr>
+                    <tr className="border-b border-gray-400 border-opacity-20">
+                      <td className="px-3 py-2 text-sm">R1</td>
+                      <td className="px-3 py-2 text-sm">G0/1</td>
+                      <td className="px-3 py-2 text-sm font-mono">192.168.2.1/24</td>
+                      <td className="px-3 py-2 text-sm">R2 (G0/0)</td>
+                    </tr>
+                    <tr className="border-b border-gray-400 border-opacity-20">
+                      <td className="px-3 py-2 text-sm">R2</td>
+                      <td className="px-3 py-2 text-sm">G0/0</td>
+                      <td className="px-3 py-2 text-sm font-mono">192.168.2.2/24</td>
+                      <td className="px-3 py-2 text-sm">R1 (G0/1)</td>
+                    </tr>
+                    <tr className="border-b border-gray-400 border-opacity-20">
+                      <td className="px-3 py-2 text-sm">R2</td>
+                      <td className="px-3 py-2 text-sm">G0/1</td>
+                      <td className="px-3 py-2 text-sm font-mono">192.168.3.1/24</td>
+                      <td className="px-3 py-2 text-sm">PC2</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 text-sm">PC2</td>
+                      <td className="px-3 py-2 text-sm">NIC</td>
+                      <td className="px-3 py-2 text-sm font-mono">192.168.3.10/24</td>
+                      <td className="px-3 py-2 text-sm">R2 (G0/1)</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div className="mt-4 px-2 py-1 bg-blue-900 bg-opacity-30 rounded-lg">
+                  <p className="text-xs text-blue-200">
+                    <Info className="inline-block h-3 w-3 mr-1" />
+                    このネットワーク構成では、R1または R2のいずれかに接続してルーティングを設定できます。
+                    R1から PC2へのアクセスには、192.168.3.0/24へのスタティックルートが必要です。
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         
         {/* Device Information */}
         <div className="bg-white bg-opacity-20 rounded-xl border-2 border-blue-400 overflow-hidden">
